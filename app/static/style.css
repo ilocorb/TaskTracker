@@ -196,3 +196,101 @@ input:focus, textarea:focus, select:focus {
     color: #fff;
     text-decoration: underline;
 }
+
+/* Flash Messages / Alerts */
+.alert {
+    padding: 16px 20px;
+    padding-left: 50px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    position: relative;
+    font-size: 0.95rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid;
+    animation: slideInDown 0.4s ease-out;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.alert::before {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+.alert-error {
+    background: linear-gradient(135deg, rgba(255, 75, 31, 0.15), rgba(255, 23, 68, 0.15));
+    border-color: rgba(255, 75, 31, 0.4);
+    color: #ffcccb;
+}
+
+.alert-error::before {
+    content: '\f06a'; /* fa-circle-exclamation */
+    color: #ff4b1f;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #d1fae5;
+}
+
+.alert-success::before {
+    content: '\f058'; /* fa-circle-check */
+    color: #10b981;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(37, 117, 252, 0.15), rgba(59, 130, 246, 0.15));
+    border-color: rgba(37, 117, 252, 0.4);
+    color: #dbeafe;
+}
+
+.alert-info::before {
+    content: '\f05a'; /* fa-circle-info */
+    color: #2575fc;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.15));
+    border-color: rgba(251, 191, 36, 0.4);
+    color: #fef3c7;
+}
+
+.alert-warning::before {
+    content: '\f071'; /* fa-triangle-exclamation */
+    color: #fbbf24;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dashboard */
+#dashboard-section {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 80px;
+    /* Space for FAB */
+    height: 100%;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}

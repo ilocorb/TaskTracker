@@ -44,9 +44,10 @@ def register():
                 new_user = User(username=username, password=generate_password_hash(password))
                 db.session.add(new_user)
                 db.session.commit()
+                flash('Registration successful! Please log in.', 'success')
                 return redirect(url_for('auth.login'))
 
-        flash(error)
+        flash(error, 'error')
 
     return render_template('auth/register.html')
 
@@ -68,7 +69,7 @@ def login():
             session['user_id'] = user.id
             return redirect(url_for('index'))
 
-        flash(error)
+        flash(error, 'error')
 
     return render_template('auth/login.html')
 

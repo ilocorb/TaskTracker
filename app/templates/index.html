@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Dashboard Section -->
+<section id="dashboard-section">
+    <!-- Header -->
+    <header class="glass-header">
+        <div class="header-top">
+            <div class="user-welcome">
+                <span>Hello,</span>
+                <strong id="user-display-name">{{ g.user.username }}</strong>
+            </div>
+            <a href="{{ url_for('auth.logout') }}" id="logout-btn" class="icon-btn"><i
+                    class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </header>
+    <!-- Main Content -->
+
+{% endblock %}

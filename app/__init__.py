@@ -23,7 +23,7 @@ def create_app():
     @app.route('/')
     @auth.login_required
     def index():
-        return render_template('base.html')
+        return render_template('index.html')
     
     # Create Database Tables
     with app.app_context():

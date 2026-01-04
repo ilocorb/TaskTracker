@@ -8,17 +8,9 @@
     <p>Welcome back!</p>
   </div>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-  {% for category, message in messages %}
-  <div class="alert alert-{{ category }}">
-    {{ message }}
-  </div>
-  {% endfor %}
-  {% endif %}
-  {% endwith %}
+  <div id="alert-container"></div>
 
-  <form method="post">
+  <form id="login-form">
     <div class="input-group">
       <i class="fas fa-user"></i>
       <input name="username" id="username" placeholder="Username">
@@ -31,7 +23,7 @@
   </form>
 
   <div class="switch-auth">
-    <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+    <p>Don't have an account? <a href="/auth/register">Register here</a></p>
   </div>
 </section>
 {% endblock %}

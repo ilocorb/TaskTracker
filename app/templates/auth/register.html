@@ -7,17 +7,9 @@
         <p>Join us today!</p>
     </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">
-        {{ message }}
-    </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
+    <div id="alert-container"></div>
 
-    <form method="post">
+    <form id="register-form">
         <div class="input-group">
             <i class="fas fa-user"></i>
             <input name="username" id="username" placeholder="Username">
@@ -30,7 +22,7 @@
     </form>
 
     <div class="switch-auth">
-        <p>Already have an account? <a href="{{ url_for('auth.login') }}">Log In</a></p>
+        <p>Already have an account? <a href="/auth/login">Log In</a></p>
     </div>
 </section>
 {% endblock %}

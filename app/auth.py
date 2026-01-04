@@ -16,6 +16,17 @@ def login_required(view):
         return view(**kwargs)
     return wrapped_view
 
+def admin_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is None:
+            return redirect(url_for('auth.login'))
+        if not g.user.is_admin:
+            flash('Admin access required.', 'error')
+            return redirect(url_for('index'))
+        return view(**kwargs)
+    return wrapped_view
+
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
@@ -28,8 +39,14 @@ def load_logged_in_user():
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        if request.is_json:
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+        else:
+            username = request.form['username']
+            password = request.form['password']
+        
         error = None
 
         if not username:
@@ -54,8 +71,14 @@ def register():
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        if request.is_json:
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+        else:
+            username = request.form['username']
+            password = request.form['password']
+        
         error = None
         user = User.query.filter_by(username=username).first()
 
@@ -77,3 +100,49 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
+# Admin Routes
+@bp.route('/admin/users')
+@login_required
+@admin_required
+def admin_users():
+    return render_template('admin/users.html')
+
+# API Routes
+@bp.route('/api/users')
+@login_required
+@admin_required
+def api_users():
+    users = User.query.all()
+    users_data = [{
+        'id': user.id,
+        'username': user.username,
+        'is_admin': user.is_admin
+    } for user in users]
+    return {'users': users_data, 'current_user_id': g.user.id}
+
+@bp.route('/api/users/<int:user_id>', methods=['DELETE'])
+@login_required
+@admin_required
+def api_delete_user(user_id):
+    if user_id == g.user.id:
+        return {'success': False, 'error': 'You cannot delete your own account.'}, 400
+    
+    user = User.query.get(user_id)
+    if not user:
+        return {'success': False, 'error': 'User not found.'}, 404
+    
+    username = user.username
+    db.session.delete(user)
+    db.session.commit()
+    return {'success': True, 'message': f'User {username} has been deleted.'}
+
+# Current User API
+@bp.route('/api/me')
+@login_required
+def api_current_user():
+    return {
+        'id': g.user.id,
+        'username': g.user.username,
+        'is_admin': g.user.is_admin
+    }

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section id="admin-section">
+    <!-- Header -->
+    <div class="glass-header">
+        <div class="header-top">
+            <div>
+                <h1><i class="fas fa-user-shield"></i> Admin Panel</h1>
+                <p class="text-muted">User Management</p>
+            </div>
+            <a href="{{ url_for('index') }}" class="icon-btn" title="Back to Dashboard">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash Messages Container -->
+    <div id="flash-messages"></div>
+
+    <!-- User Stats -->
+    <div class="glass-panel stats-panel">
+        <div class="stat-item">
+            <i class="fas fa-users"></i>
+            <div>
+                <h3 id="total-users">-</h3>
+                <p>Total Users</p>
+            </div>
+        </div>
+        <div class="stat-item">
+            <i class="fas fa-user-shield"></i>
+            <div>
+                <h3 id="total-admins">-</h3>
+                <p>Admins</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- User List -->
+    <div class="glass-panel">
+        <h2 class="panel-title"><i class="fas fa-list"></i> All Users</h2>
+        <div id="users-container">
+            <div class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading users...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

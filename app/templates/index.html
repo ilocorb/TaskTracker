@@ -9,12 +9,31 @@
         <div class="header-top">
             <div class="user-welcome">
                 <span>Hello,</span>
-                <strong id="user-display-name">{{ g.user.username }}</strong>
+                <strong id="user-display-name">Loading...</strong>
             </div>
-            <a href="{{ url_for('auth.logout') }}" id="logout-btn" class="icon-btn"><i
-                    class="fas fa-sign-out-alt"></i></a>
+            <div style="display: flex; gap: 10px;">
+                <button id="admin-btn" class="icon-btn" title="Admin Panel" style="display: none;">
+                    <i class="fas fa-user-shield"></i>
+                </button>
+                <button id="logout-btn" class="icon-btn" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
         </div>
     </header>
+    
     <!-- Main Content -->
+    <div class="dashboard-container">
+        <div class="controls-section">
+            <button id="add-task-btn" class="btn-primary">
+                <i class="fas fa-plus"></i> Add Task
+            </button>
+        </div>
+        
+        <div id="tasks-container" class="tasks-grid">
+            
+        </div>
+    </div>
+</section>
 
 {% endblock %}

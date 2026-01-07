@@ -60,15 +60,31 @@ def create_task():
     #    user_id = session['user_id']
     #).order_by(Task.created_at.desc()).all()
 
-    return render_template('index.html', tasks=tasks)
+    return render_template('index.html')
 
 
-@bp.route('api/tasks/<int:user_id>/toggle', methods = ['POST'])
+@bp.route('api/index/<int:id>/delete', methods=['POST'])
+@login_required
+def delete_task(id):
+    task = Task.query.get_or_404(id)
+
+    if task.user_id != g.user.id:
+        flash('Task ID does no not match Session User ID', 'error')
+    else: 
+        db.session.delete(task)
+        db.session.commit()
+
+    if request.is_json:
+        return {'success': True, 'message': 'Deleted Task succesfully!'}
+    return redirect(url_for('index'))
+
+
+@bp.route('api/index/<int:id>/toggle', methods = ['POST'])
 @login_required
 def toggle_completed(id):
     task = Task.query.get_or_404(id)
 
-    if task.id != session['user_id']:
+    if task.id != g.user.id:
         flash('Task ID does no not match Session User ID', 'error')
 
     task.is_done = not task.is_done
@@ -79,25 +95,9 @@ def toggle_completed(id):
     return redirect(url_for('index'))
 
 
-@bp.route('api/tasks/<int:user_id>/delete', methods=['POST'])
-@login_required
-def delete_task(id):
-    task = Task.query.get_or_404(id)
-
-    if task.user_id != session['user_id']:
-        flash('Task ID does no not match Session User ID', 'error')
-
-    db.session.delete(task)
-    db.session.commit()
-
-    if request.is_json:
-        return {'success': True, 'message': 'Deleted Task succesfully!'}
-    return redirect(url_for('index'))
-
-@bp.route('api/tasks/<int:user_id>/edit', methods = ['POST'])
+@bp.route('api/index/<int:id>/edit', methods = ['POST'])
 @login_required
 def edit_task(id):
-    task = Task.query.get_or_404(id)
 
     if request.method == 'POST':
         if request.is_json:
@@ -114,11 +114,11 @@ def edit_task(id):
             priority = request.form.get('priority')
             due_date = request.form.get('due_date')
 
-    if task.user_id != session['user_id']:
+    if id != g.user.id:
         flash('Task ID does no not match Session User ID', 'error')
 
     stmt = (
-        update(Task).where(task.id == id).values(title = title, description = desc, is_done = is_done, priority = priority, due_date = due_date)
+        update(Task).where(Task.id == id).values(title = title, description = desc, is_done = is_done, priority = priority, due_date = due_date)
     )
     db.session.execute(stmt)
     db.session.commit()

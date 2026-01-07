@@ -7,17 +7,19 @@ from .models import Task
 from .auth import login_required
 
 
-bp = Blueprint('tasks', __name__, url_prefix='/')
+bp = Blueprint('tasks', __name__, url_prefix='/api')
 
 
-@bp.route('/')
+@bp.route('/tasks')
 def tasks():
-	# render all tasks in db
-	tasks = Task.query.order_by(Task.created_at)
-	return render_template("index.html", tasks=tasks)
+    """Get all tasks for the current user"""
+    tasks = Task.query.filter_by(user_id=g.user.id).all()
+    return jsonify({
+        'tasks': [task.to_dict() for task in tasks]
+    })
 
 
-@bp.route('/index', methods = ['GET', 'POST'])
+@bp.route('/tasks', methods = ['GET', 'POST'])
 @login_required
 def create_task():
     if request.method == 'POST':
@@ -63,7 +65,13 @@ def create_task():
     return render_template('index.html')
 
 
-@bp.route('api/index/<int:id>/delete', methods=['POST'])
+@bp.route('/tasks/<int:task_id>', methods=['GET'])
+@login_required
+def get_task(task_id):
+    """Get a specific task"""
+
+
+@bp.route('/tasks/<int:id>', methods=['DELETE'])
 @login_required
 def delete_task(id):
     task = Task.query.get_or_404(id)
@@ -79,7 +87,7 @@ def delete_task(id):
     return redirect(url_for('index'))
 
 
-@bp.route('api/index/<int:id>/toggle', methods = ['POST'])
+@bp.route('/tasks/<int:id>/toggle', methods = ['PUT'])
 @login_required
 def toggle_completed(id):
     task = Task.query.get_or_404(id)
@@ -95,11 +103,11 @@ def toggle_completed(id):
     return redirect(url_for('index'))
 
 
-@bp.route('api/index/<int:id>/edit', methods = ['POST'])
+@bp.route('/tasks/<int:id>', methods = ['PUT'])
 @login_required
 def edit_task(id):
 
-    if request.method == 'POST':
+    if request.method == 'PUT':
         if request.is_json:
             data = request.get_json()
             title = data.get('title')

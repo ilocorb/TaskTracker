@@ -3,6 +3,7 @@ from .database import db
 import os
 
 from . import auth
+from . import tasks
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -19,6 +20,7 @@ def create_app():
         pass
     
     app.register_blueprint(auth.bp)
+    app.register_blueprint(tasks.bp)
 
     @app.route('/')
     @auth.login_required
@@ -28,5 +30,5 @@ def create_app():
     # Create Database Tables
     with app.app_context():
         db.create_all()
-        
+
     return app

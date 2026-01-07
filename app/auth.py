@@ -1,6 +1,6 @@
 import functools
 
-from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .database import db
@@ -117,6 +117,7 @@ def login():
 @bp.route('/logout')
 def logout():
     session.clear()
+    flash('You have been logged out', 'success')
     return redirect(url_for('index'))
 
 # Admin Routes

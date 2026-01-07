@@ -122,7 +122,7 @@ def edit_task(id):
         flash('Task ID does no not match Session User ID', 'error')
 
     stmt = (
-        update(Task).where(Task.id == id).values(title = title, description = desc, is_done = is_done, priority = priority, due_date = due_date)
+        update(Task).where(Task.id == id).values(title = title, description = desc, is_done = is_done or False, priority = priority, due_date = due_date)
     )
     db.session.execute(stmt)
     db.session.commit()

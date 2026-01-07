@@ -61,9 +61,18 @@ def register():
                 new_user = User(username=username, password=generate_password_hash(password))
                 db.session.add(new_user)
                 db.session.commit()
+                
+                # Return JSON for AJAX requests
+                if request.is_json:
+                    return {'success': True, 'message': 'Registration successful! Please log in.'}
+                
                 flash('Registration successful! Please log in.', 'success')
                 return redirect(url_for('auth.login'))
 
+        # Return error as JSON for AJAX requests
+        if request.is_json:
+            return {'success': False, 'error': error}, 400
+        
         flash(error, 'error')
 
     return render_template('auth/register.html')
@@ -90,8 +99,17 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user.id
+            
+            # Return JSON for AJAX requests
+            if request.is_json:
+                return {'success': True, 'message': 'Login successful!'}
+            
             return redirect(url_for('index'))
 
+        # Return error as JSON for AJAX requests
+        if request.is_json:
+            return {'success': False, 'error': error}, 400
+        
         flash(error, 'error')
 
     return render_template('auth/login.html')

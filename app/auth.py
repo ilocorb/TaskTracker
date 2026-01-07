@@ -1,6 +1,6 @@
 import functools
 
-from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .database import db
@@ -62,7 +62,12 @@ def register():
                 db.session.add(new_user)
                 db.session.commit()
                 flash('Registration successful! Please log in.', 'success')
-                return redirect(url_for('auth.login'))
+                # throws a json.parse error otherwise
+                return jsonify(
+                    success=True,
+                    message='Registration successful!'
+                ), 201
+                #return redirect(url_for('auth.login'))
 
         flash(error, 'error')
 
@@ -90,7 +95,13 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user.id
-            return redirect(url_for('index'))
+            # Throws a json.parse error otherwise
+            return jsonify(
+                success=True,
+                message='Login successful!'
+            ), 201
+            #redirect(url_for('index'))
+            
 
         flash(error, 'error')
 
@@ -99,6 +110,7 @@ def login():
 @bp.route('/logout')
 def logout():
     session.clear()
+    flash('You have been logged out', 'success')
     return redirect(url_for('index'))
 
 # Admin Routes

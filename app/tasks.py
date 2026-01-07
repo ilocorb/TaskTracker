@@ -30,12 +30,14 @@ def create_task():
             is_done = data.get('is_done') #TODO Add Tags
             priority = data.get('priority')
             due_date = data.get('due_date')
+            tags = data.get('tags')
         else:
             title = request.form.get('title')
             desc = request.form.get('description')
             is_done = request.form.get('is_done')
             priority = request.form.get('priority')
             due_date = request.form.get('due_date')
+            tags = request.form.get('tags')
 
         if title:
             task = Task(
@@ -44,6 +46,7 @@ def create_task():
                 is_done = is_done or None,
                 priority = priority,
                 due_date = due_date or None,
+                tags = tags or None,
                 user_id = session['user_id']
             )
             db.session.add(task)
@@ -111,44 +114,24 @@ def edit_task(id):
             is_done = data.get('is_done')
             priority = data.get('priority')
             due_date = data.get('due_date') #TODO Add Editing for Tags
+            tags = data.get('tags')
         else:
             title = request.form.get('title')
             desc = request.form.get('description')
             is_done = request.form.get('is_done')
             priority = request.form.get('priority')
             due_date = request.form.get('due_date')
+            tags = request.form.get('tags')
 
     if id != g.user.id:
         flash('Task ID does no not match Session User ID', 'error')
 
     stmt = (
-        update(Task).where(Task.id == id).values(title = title, description = desc, is_done = is_done or False, priority = priority, due_date = due_date)
+        update(Task).where(Task.id == id).values(title = title, description = desc, is_done = is_done or False, priority = priority, due_date = due_date, tags = tags)
     )
     db.session.execute(stmt)
     db.session.commit()
 
     if request.is_json:
         return {'success': True, 'message': 'Edited Task succesfully!'}
-    return redirect(url_for('index'))
-
-@bp.route('/index/filter', methods = ['POST'])
-@login_required
-def filter_tasks():
-    if request.is_json:
-        data = request.get_json()
-        priority = data.get('priority')
-        due_date = data.get('due_date')
-        is_done = data.get('is_done')       #TODO Add filtering for Tags
-    else:
-        priority = request.form.get('priority')
-        due_date = request.form.get('due_date')
-        is_done = data.form.get('is_done')
-
-    #TODO Add Logic to choose by which to filter
-    
-    tasks = Task.query.filter_by(
-        priority = priority
-    ).order_by(Task.due_date).all()
-
-    return render_template('index.html', tasks = tasks)
-        
+    return redirect(url_for('index'))     

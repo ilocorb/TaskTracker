@@ -4,13 +4,13 @@
 const showAlert = (message, type = 'error') => {
     const container = document.getElementById('alert-container');
     if (!container) return;
-    
+
     container.innerHTML = `
         <div class="alert alert-${type}">
             ${message}
         </div>
     `;
-    
+
     // Auto-hide after 5 seconds
     setTimeout(() => {
         container.innerHTML = '';
@@ -26,13 +26,13 @@ const apiRequest = async (url, options = {}) => {
                 ...options.headers
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(data.error || 'Request failed');
         }
-        
+
         return data;
     } catch (error) {
         throw error;
@@ -43,19 +43,19 @@ const apiRequest = async (url, options = {}) => {
 const initLoginPage = () => {
     const form = document.getElementById('login-form');
     if (!form) return;
-    
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        
+
         try {
             const data = await apiRequest('/auth/login', {
                 method: 'POST',
                 body: JSON.stringify({ username, password })
             });
-            
+
             if (data.success) {
                 window.location.href = '/';
             }
@@ -68,19 +68,19 @@ const initLoginPage = () => {
 const initRegisterPage = () => {
     const form = document.getElementById('register-form');
     if (!form) return;
-    
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        
+
         try {
             const data = await apiRequest('/auth/register', {
                 method: 'POST',
                 body: JSON.stringify({ username, password })
             });
-            
+
             if (data.success) {
                 showAlert(data.message, 'success');
                 setTimeout(() => {
@@ -100,13 +100,13 @@ const loadCurrentUser = async () => {
     try {
         const data = await apiRequest('/auth/api/me');
         currentUser = data;
-        
+
         // Update UI with user info
         const nameElement = document.getElementById('user-display-name');
         if (nameElement) {
             nameElement.textContent = currentUser.username;
         }
-        
+
         // Show admin button if user is admin
         const adminBtn = document.getElementById('admin-btn');
         if (adminBtn && currentUser.is_admin) {
@@ -115,7 +115,7 @@ const loadCurrentUser = async () => {
                 window.location.href = '/auth/admin/users';
             });
         }
-        
+
         return currentUser;
     } catch (error) {
         console.error('Failed to load user:', error);
@@ -124,10 +124,216 @@ const loadCurrentUser = async () => {
     }
 };
 
+// Task Management
+let tasks = [];
+let editingTaskId = null;
+
+const loadTasks = async () => {
+    try {
+        const data = await apiRequest('/api/tasks');
+        tasks = data.tasks;
+        renderTasks();
+    } catch (error) {
+        console.error('Failed to load tasks:', error);
+        showAlert('Failed to load tasks', 'error');
+    }
+};
+
+const renderTasks = () => {
+    const container = document.getElementById('tasks-container');
+    if (!container) return;
+
+    if (tasks.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-tasks"></i>
+                <h2>No tasks yet</h2>
+                <p>Click "Add Task" to create your first task!</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = tasks.map(task => `
+        <div class="task-card glass-panel ${task.is_done ? 'completed' : ''}">
+            <div class="task-checkbox-wrapper">
+                <input type="checkbox" ${task.is_done ? 'checked' : ''} 
+                       onchange="toggleTaskDone(${task.id}, this.checked)"
+                       title="${task.is_done ? 'Mark as incomplete' : 'Mark as complete'}">
+            </div>
+            <div class="task-content">
+                <div class="task-main">
+                    <h3 class="task-title">${escapeHtml(task.title)}</h3>
+                    <span class="task-priority" style="background: ${getPriorityColor(task.priority)}">
+                        ${task.priority}
+                    </span>
+                </div>
+                ${task.description ? `<p class="task-description">${escapeHtml(task.description)}</p>` : ''}
+                <div class="task-meta">
+                    ${task.due_date ? `<span><i class="fas fa-calendar"></i> ${task.due_date}</span>` : ''}
+                    ${task.tags ? `<span><i class="fas fa-tags"></i> ${task.tags}</span>` : ''}
+                </div>
+            </div>
+            <div class="task-actions">
+                <button class="icon-btn" onclick="editTask(${task.id})" title="Edit">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="icon-btn" onclick="deleteTask(${task.id})" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+};
+
+const getPriorityColor = (priority) => {
+    const colors = {
+        high: 'linear-gradient(135deg, #ff4b1f, #ff1744)',
+        medium: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+        low: 'linear-gradient(135deg, #10b981, #059669)'
+    };
+    return colors[priority] || colors.medium;
+};
+
+const escapeHtml = (text) => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+};
+
+const showTaskModal = (task = null) => {
+    editingTaskId = task ? task.id : null;
+    const modal = document.getElementById('task-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const taskIdField = document.getElementById('task-id');
+    const submitBtn = document.getElementById('submit-btn');
+
+    // Update modal title
+    modalTitle.textContent = task ? 'Edit Task' : 'Add New Task';
+    submitBtn.textContent = task ? 'Update Task' : 'Add Task';
+
+    // Populate form fields
+    if (task) {
+        taskIdField.value = task.id;
+        document.getElementById('task-title').value = task.title;
+        document.getElementById('task-desc').value = task.description || '';
+        document.getElementById('task-priority').value = task.priority || 'medium';
+        document.getElementById('task-due').value = task.due_date || '';
+        document.getElementById('task-tags').value = task.tags || '';
+    } else {
+        taskIdField.value = '';
+        document.getElementById('task-title').value = '';
+        document.getElementById('task-desc').value = '';
+        document.getElementById('task-priority').value = 'medium';
+        document.getElementById('task-due').value = '';
+        document.getElementById('task-tags').value = '';
+    }
+
+    // Show modal
+    modal.classList.remove('hidden');
+};
+
+const closeModal = () => {
+    const modal = document.getElementById('task-modal');
+    if (modal) modal.classList.add('hidden');
+    editingTaskId = null;
+};
+
+const saveTask = async () => {
+    const taskData = {
+        title: document.getElementById('task-title').value,
+        description: document.getElementById('task-desc').value,
+        priority: document.getElementById('task-priority').value,
+        due_date: document.getElementById('task-due').value,
+        tags: document.getElementById('task-tags').value
+    };
+
+    try {
+        if (editingTaskId) {
+            await apiRequest(`/api/tasks/${editingTaskId}`, {
+                method: 'PUT',
+                body: JSON.stringify(taskData)
+            });
+            showAlert('Task updated successfully', 'success');
+        } else {
+            await apiRequest('/api/tasks', {
+                method: 'POST',
+                body: JSON.stringify(taskData)
+            });
+            showAlert('Task created successfully', 'success');
+        }
+
+        closeModal();
+        await loadTasks();
+    } catch (error) {
+        showAlert(error.message, 'error');
+    }
+};
+
+const editTask = (taskId) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) showTaskModal(task);
+};
+
+const deleteTask = async (taskId) => {
+    if (!confirm('Are you sure you want to delete this task?')) return;
+
+    try {
+        await apiRequest(`/api/tasks/${taskId}`, { method: 'DELETE' });
+        showAlert('Task deleted successfully', 'success');
+        await loadTasks();
+    } catch (error) {
+        showAlert(error.message, 'error');
+    }
+};
+
+const toggleTaskDone = async (taskId, isDone) => {
+    try {
+        await apiRequest(`/api/tasks/${taskId}/toggle`, {
+            method: 'PUT',
+            body: JSON.stringify({ is_done: isDone })
+        });
+        await loadTasks();
+    } catch (error) {
+        showAlert(error.message, 'error');
+    }
+};
+
+// Make functions global
+window.showTaskModal = showTaskModal;
+window.closeModal = closeModal;
+window.editTask = editTask;
+window.deleteTask = deleteTask;
+window.toggleTaskDone = toggleTaskDone;
+
 const initDashboard = async () => {
     // Load user info
     await loadCurrentUser();
-    
+
+    // Load tasks
+    await loadTasks();
+
+    // Setup add task button
+    const addTaskBtn = document.getElementById('add-task-btn');
+    if (addTaskBtn) {
+        addTaskBtn.addEventListener('click', () => showTaskModal());
+    }
+
+    // Setup close modal button
+    const closeModalBtn = document.getElementById('close-modal');
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeModal);
+    }
+
+    // Setup task form submission
+    const taskForm = document.getElementById('task-form');
+    if (taskForm) {
+        taskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveTask();
+        });
+    }
+
     // Setup logout button
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {

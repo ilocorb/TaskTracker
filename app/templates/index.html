@@ -20,20 +20,93 @@
                 </button>
             </div>
         </div>
-    </header>
-    
-    <!-- Main Content -->
-    <div class="dashboard-container">
-        <div class="controls-section">
-            <button id="add-task-btn" class="btn-primary">
-                <i class="fas fa-plus"></i> Add Task
-            </button>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-labels">
+                <span>Daily Progress</span>
+                <span id="progress-text">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill" style="width: 0%;"></div>
+            </div>
         </div>
-        
-        <div id="tasks-container" class="tasks-grid">
-            
+    </header>
+
+    <!-- Controls (Search & Filter) -->
+    <div class="controls-area">
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Search tasks...">
+        </div>
+
+        <div class="filter-sort-row">
+            <select id="filter-select" class="glass-select">
+                <option value="all">All Tasks</option>
+                <option value="open">Open</option>
+                <option value="done">Completed</option>
+                <option value="high_priority">High Priority</option>
+                <option value="overdue">Overdue</option>
+            </select>
+            <select id="sort-select" class="glass-select">
+                <option value="created_at">Newest</option>
+                <option value="due_date">Due Date</option>
+                <option value="priority">Priority</option>
+            </select>
         </div>
     </div>
+
+    <!-- Task List -->
+    <div id="tasks-container" class="tasks-list">
+        <!-- Tasks injected here by JavaScript -->
+    </div>
+
+    <!-- Floating Action Button -->
+    <button id="add-task-btn" class="fab" title="Add Task">
+        <i class="fas fa-plus"></i>
+    </button>
 </section>
+
+
+<!-- Add/Edit Task Modal -->
+<div id="task-modal" class="modal hidden">
+    <div class="modal-content glass-panel">
+        <div class="modal-header">
+            <h2 id="modal-title">Add New Task</h2>
+            <button id="close-modal" class="icon-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="task-form">
+            <input type="hidden" id="task-id">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="task-title" class="glass-input"
+                    placeholder="Conquer the world, one task at a time!" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="task-desc" class="glass-input" rows="3"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select id="task-priority" class="glass-select">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" id="task-due" class="glass-input">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Tags (comma separated)</label>
+                <input type="text" id="task-tags" class="glass-input" placeholder="e.g. work, school">
+            </div>
+            <button id="submit-btn" type="submit" class="btn-primary">Add Task</button>
+        </form>
+    </div>
+</div>
 
 {% endblock %}

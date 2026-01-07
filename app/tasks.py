@@ -11,9 +11,8 @@ bp = Blueprint('tasks', __name__, url_prefix='/')
 
 
 @bp.route('/')
-def tasks():
-	# render all tasks in db
-	tasks = Task.query.order_by(Task.created_at)
+def render_tasks():
+	tasks = Task.query
 	return render_template("index.html", tasks=tasks)
 
 
@@ -25,7 +24,7 @@ def create_task():
             data = request.get_json()
             title = data.get('title')
             desc = data.get('description')
-            is_done = data.get('is_done')
+            is_done = data.get('is_done') #TODO Add Tags
             priority = data.get('priority')
             due_date = data.get('due_date')
         else:
@@ -55,10 +54,6 @@ def create_task():
     
     #if request.method == 'GET':
 
-
-    #tasks = Task.query.filter_by(
-    #    user_id = session['user_id']
-    #).order_by(Task.created_at.desc()).all()
 
     return render_template('index.html')
 
@@ -106,7 +101,7 @@ def edit_task(id):
             desc = data.get('description')
             is_done = data.get('is_done')
             priority = data.get('priority')
-            due_date = data.get('due_date')
+            due_date = data.get('due_date') #TODO Add Editing for Tags
         else:
             title = request.form.get('title')
             desc = request.form.get('description')
@@ -126,3 +121,25 @@ def edit_task(id):
     if request.is_json:
         return {'success': True, 'message': 'Edited Task succesfully!'}
     return redirect(url_for('index'))
+
+@bp.route('/index/filter', methods = ['POST'])
+@login_required
+def filter_tasks():
+    if request.is_json:
+        data = request.get_json()
+        priority = data.get('priority')
+        due_date = data.get('due_date')
+        is_done = data.get('is_done')       #TODO Add filtering for Tags
+    else:
+        priority = request.form.get('priority')
+        due_date = request.form.get('due_date')
+        is_done = data.form.get('is_done')
+
+    #TODO Add Logic to choose by which to filter
+    
+    tasks = Task.query.filter_by(
+        priority = priority
+    ).order_by(Task.due_date).all()
+
+    return render_template('index.html', tasks = tasks)
+        

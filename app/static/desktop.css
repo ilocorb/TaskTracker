@@ -1,0 +1,157 @@
+/* Desktop View (≥768px) */
+@media (min-width: 768px) {
+
+    /* Desktop: Full width for dashboard */
+    .container {
+        max-width: 100%;
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    /* Desktop: 3-column grid layout */
+    .tasks-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.5rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Task Column */
+    .task-column {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    /* Column Header - Desktop: Show headers */
+    .column-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        margin-bottom: 1rem;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .column-header i {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+    }
+
+    .column-header h3 {
+        flex: 1;
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-color);
+    }
+
+    .column-header .task-count {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 28px;
+        padding: 0 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    /* Column Header Colors */
+    .column-header.in-progress i {
+        color: #fbbf24;
+    }
+
+    .column-header.done i {
+        color: #10b981;
+    }
+
+    /* Desktop: Reposition priority tag below title for more title space */
+    .task-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .task-title {
+        white-space: normal;
+        text-overflow: unset;
+        overflow: visible;
+        line-height: 1.4;
+    }
+
+    /* Desktop: More compact priority tag */
+    .task-priority {
+        padding: 0.2rem 0.6rem;
+        font-size: 0.7rem;
+    }
+
+    /* Desktop: Enhanced hover effect with lift (Inherited from base) */
+    .task-card:hover {
+        transform: translateY(-4px);
+        /* Slightly stronger for desktop */
+        border-left-color: var(--primary-color);
+    }
+
+    /* Desktop: Hover-only buttons */
+    .task-actions {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .task-card:hover .task-actions {
+        opacity: 1;
+    }
+
+    .controls-area {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .search-bar {
+        flex: 1;
+        max-width: 400px;
+        margin-bottom: 0;
+    }
+
+    .filter-sort-row {
+        flex-shrink: 0;
+        gap: 0.75rem;
+    }
+
+    .filter-sort-row select {
+        min-width: 200px;
+    }
+
+    .progress-bar-bg {
+        height: 8px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem 2rem;
+        grid-column: 1 / -1;
+    }
+
+    .empty-state p {
+        display: contents;
+        color: var(--text-muted);
+    }
+}

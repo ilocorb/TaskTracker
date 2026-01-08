@@ -102,10 +102,9 @@
         font-size: 0.7rem;
     }
 
-    /* Desktop: Enhanced hover effect with lift (Inherited from base) */
+    /* Desktop: hover effect with lift */
     .task-card:hover {
         transform: translateY(-4px);
-        /* Slightly stronger for desktop */
         border-left-color: var(--primary-color);
     }
 

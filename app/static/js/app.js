@@ -170,7 +170,9 @@ const renderTasks = () => {
         }
 
         return `
-        <div class="task-card glass-panel ${task.status === 'done' ? 'completed' : ''}">
+        <div class="task-card glass-panel ${task.status === 'done' ? 'completed' : ''}" 
+             data-task-id="${task.id}" 
+             onclick="handleTaskCardClick(event, ${task.id})">
             <div class="task-checkbox-wrapper">
                 <input type="checkbox" class="task-checkbox ${checkboxClass}" ${checkboxChecked}
                        onchange="toggleTaskStatus(${task.id})"
@@ -179,7 +181,7 @@ const renderTasks = () => {
             <div class="task-content">
                 <div class="task-main">
                     <h3 class="task-title">${escapeHtml(task.title)}</h3>
-                    <span class="task-priority" style="background: ${getPriorityColor(task.priority)}">
+                    <span class="task-priority" style="background: ${getPriorityColor(task.priority)}" title="${task.priority}">
                         ${task.priority}
                     </span>
                 </div>
@@ -190,10 +192,10 @@ const renderTasks = () => {
                 </div>
             </div>
             <div class="task-actions">
-                <button class="icon-btn" onclick="editTask(${task.id})" title="Edit">
+                <button class="icon-btn" onclick="editTask(${task.id}); event.stopPropagation();" title="Edit">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="icon-btn" onclick="deleteTask(${task.id})" title="Delete">
+                <button class="icon-btn" onclick="deleteTask(${task.id}); event.stopPropagation();" title="Delete">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -242,10 +244,18 @@ const showTaskModal = (task = null) => {
     const modalTitle = document.getElementById('modal-title');
     const taskIdField = document.getElementById('task-id');
     const submitBtn = document.getElementById('submit-btn');
+    const deleteBtn = document.getElementById('delete-task-btn');
 
     // Update modal title
     modalTitle.textContent = task ? 'Edit Task' : 'Add New Task';
     submitBtn.textContent = task ? 'Update Task' : 'Add Task';
+
+    // Show/hide delete button
+    if (task) {
+        deleteBtn.classList.remove('hidden');
+    } else {
+        deleteBtn.classList.add('hidden');
+    }
 
     // Populate form fields
     if (task) {
@@ -348,12 +358,33 @@ const toggleTaskStatus = async (taskId) => {
     }
 };
 
+// Handle task card click (mobile: open edit, desktop: buttons handle it)
+const handleTaskCardClick = (event, taskId) => {
+    // Only enable click-to-edit in mobile view (< 768px)
+    if (window.innerWidth >= 768) {
+        return; // Desktop: use buttons instead
+    }
+
+    // Don't open modal if clicking on checkbox, buttons, or interactive elements
+    const target = event.target;
+    if (target.closest('.task-checkbox-wrapper') ||
+        target.closest('.task-actions') ||
+        target.tagName === 'BUTTON' ||
+        target.tagName === 'INPUT') {
+        return;
+    }
+
+    // Open edit modal
+    editTask(taskId);
+};
+
 // Make functions global
 window.showTaskModal = showTaskModal;
 window.closeModal = closeModal;
 window.editTask = editTask;
 window.deleteTask = deleteTask;
 window.toggleTaskStatus = toggleTaskStatus;
+window.handleTaskCardClick = handleTaskCardClick;
 
 const initDashboard = async () => {
     // Load user info
@@ -380,6 +411,17 @@ const initDashboard = async () => {
         taskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             await saveTask();
+        });
+    }
+
+    // Setup delete button in modal
+    const deleteTaskBtn = document.getElementById('delete-task-btn');
+    if (deleteTaskBtn) {
+        deleteTaskBtn.addEventListener('click', async () => {
+            if (editingTaskId && confirm('Are you sure you want to delete this task?')) {
+                await deleteTask(editingTaskId);
+                closeModal();
+            }
         });
     }
 

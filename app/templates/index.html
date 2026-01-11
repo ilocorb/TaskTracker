@@ -141,7 +141,12 @@
                 <label>Tags (comma separated)</label>
                 <input type="text" id="task-tags" class="glass-input" placeholder="e.g. work, school">
             </div>
-            <button id="submit-btn" type="submit" class="btn-primary">Add Task</button>
+            <div class="modal-actions">
+                <button id="delete-task-btn" type="button" class="btn-delete-modal hidden">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <button id="submit-btn" type="submit" class="btn-primary">Add Task</button>
+            </div>
         </form>
     </div>
 </div>

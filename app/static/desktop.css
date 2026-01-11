@@ -96,13 +96,26 @@
         line-height: 1.4;
     }
 
-    /* Desktop: More compact priority tag */
+    /* Desktop: Full priority badge with text */
     .task-priority {
+        width: auto;
+        height: auto;
+        min-width: auto;
+        min-height: auto;
         padding: 0.2rem 0.6rem;
+        border-radius: 20px;
         font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: white;
     }
 
     /* Desktop: hover effect with lift */
+    .task-card {
+        cursor: default;
+        /* Desktop: not clickable, use buttons instead */
+    }
+
     .task-card:hover {
         transform: translateY(-4px);
         border-left-color: var(--primary-color);
@@ -110,6 +123,9 @@
 
     /* Desktop: Hover-only buttons */
     .task-actions {
+        display: flex;
+        gap: 0.3rem;
+        flex-shrink: 0;
         opacity: 0;
         transition: opacity 0.2s ease;
     }
@@ -152,5 +168,10 @@
     .empty-state p {
         display: contents;
         color: var(--text-muted);
+    }
+
+    /* Desktop: Priority and Date stacked vertically in modal */
+    .form-row {
+        flex-direction: column;
     }
 }

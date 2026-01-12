@@ -132,7 +132,7 @@ const loadTasks = async () => {
     try {
         const data = await apiRequest('/api/tasks');
         tasks = data.tasks;
-        renderTasks();
+        renderTasks(tasks);
     } catch (error) {
         console.error('Failed to load tasks:', error);
         showAlert('Failed to load tasks', 'error');
@@ -226,6 +226,8 @@ const renderTasks = (taskList = tasks) => {
     } else {
         doneContainer.innerHTML = doneTasks.map(renderTaskCard).join('');
     }
+
+    updateProgressBar(tasks);
 };
 
 const applyFilters = () => {
@@ -262,10 +264,17 @@ const applyFilters = () => {
 
             case 'priority':
                 const priorityOrder = { high: 1, medium: 2, low: 3 };
-                return priorityOrder[a.priority] - priorityOrder[b.priority];
-
+                aPriority = priorityOrder[a.priority];
+                bPriority = priorityOrder[b.priority];
+                
+                /* sort overdue tasks first */
+                if (aPriority === bPriority) {
+                    return isOverdue(a) ? -1 : 1;
+                } else {
+                    return aPriority - bPriority;
+                }
+                
             case 'created_at':
-            default:
                 return new Date(b.created_at) - new Date(a.created_at);
         }
     });
@@ -285,6 +294,19 @@ const isOverdue = (task) => {
     if (task.status === 'done') return false;
 
     return new Date(task.due_date) < new Date();
+};
+
+const updateProgressBar = (taskList = tasks) => {
+    const totalTasks = taskList.length;
+    const completedTasks = taskList.filter(task => task.status === 'done').length;
+
+    const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+
+    const progressText = document.getElementById('progress-text');
+    const progressFill = document.getElementById('progress-fill');
+
+    progressText.textContent = `${progress}%`;
+    progressFill.style.width = `${progress}%`;
 };
 
 const getPriorityColor = (priority) => {

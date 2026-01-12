@@ -26,7 +26,8 @@ def create_task():
             data = request.get_json()
             title = data.get('title')
             desc = data.get('description')
-            is_done = data.get('is_done') #TODO Add Tags
+            is_done = data.get('is_done')
+            status = data.get('status')
             priority = data.get('priority')
             due_date = data.get('due_date')
             tags = data.get('tags')
@@ -34,6 +35,7 @@ def create_task():
             title = request.form.get('title')
             desc = request.form.get('description')
             is_done = request.form.get('is_done')
+            status = request.form.get('status')
             priority = request.form.get('priority')
             due_date = request.form.get('due_date')
             tags = request.form.get('tags')
@@ -42,8 +44,9 @@ def create_task():
             task = Task(
                 title = title,
                 description = desc or None,
-                is_done = is_done or None,
-                priority = priority,
+                is_done = is_done or False,
+                status = status or 'todo',
+                priority = priority or 'medium',
                 due_date = due_date or None,
                 tags = tags or None,
                 user_id = session['user_id']
@@ -104,33 +107,36 @@ def toggle_completed(id):
 @bp.route('/tasks/<int:id>', methods = ['PUT'])
 @login_required
 def edit_task(id):
+    task = Task.query.get_or_404(id)
+    
+    if task.user_id != g.user.id:
+        return {'success': False, 'error': 'Unauthorized'}, 403
 
     if request.method == 'PUT':
         if request.is_json:
             data = request.get_json()
-            title = data.get('title')
-            desc = data.get('description')
-            is_done = data.get('is_done')
-            priority = data.get('priority')
-            due_date = data.get('due_date') #TODO Add Editing for Tags
-            tags = data.get('tags')
         else:
-            title = request.form.get('title')
-            desc = request.form.get('description')
-            is_done = request.form.get('is_done')
-            priority = request.form.get('priority')
-            due_date = request.form.get('due_date')
-            tags = request.form.get('tags')
+            data = request.form.to_dict()
 
-    if id != g.user.id:
-        flash('Task ID does no not match Session User ID', 'error')
+        # Only update fields that are provided
+        if 'title' in data and data['title']:
+            task.title = data['title']
+        if 'description' in data:
+            task.description = data['description']
+        if 'is_done' in data:
+            task.is_done = data['is_done']
+        if 'status' in data:
+            task.status = data['status']
+        if 'priority' in data:
+            task.priority = data['priority']
+        if 'due_date' in data:
+            task.due_date = data['due_date']
+        if 'tags' in data:
+            task.tags = data['tags']
 
-    stmt = (
-        update(Task).where(Task.id == id).values(title = title, description = desc, is_done = is_done or False, priority = priority, due_date = due_date, tags = tags)
-    )
-    db.session.execute(stmt)
-    db.session.commit()
+        db.session.commit()
 
     if request.is_json:
         return {'success': True, 'message': 'Edited Task succesfully!'}
-    return redirect(url_for('index'))     
+    return redirect(url_for('index'))
+     

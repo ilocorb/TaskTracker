@@ -56,9 +56,46 @@
         </div>
     </div>
 
-    <!-- Task List -->
-    <div id="tasks-container" class="tasks-list">
-        <!-- Tasks injected here by JavaScript -->
+    <!-- Task List - 3 Column Grid for Desktop, Single List for Mobile -->
+    <div id="tasks-container" class="tasks-container">
+        <!-- Desktop: 3-column grid -->
+        <div class="tasks-grid">
+            <!-- TO-DO Column -->
+            <div class="task-column">
+                <div class="column-header">
+                    <i class="fas fa-circle"></i>
+                    <h3>TO-DO</h3>
+                    <span class="task-count" id="todo-count">0</span>
+                </div>
+                <div id="todo-tasks" class="tasks-list">
+                    <!-- TO-DO tasks injected here -->
+                </div>
+            </div>
+
+            <!-- In Progress Column -->
+            <div class="task-column">
+                <div class="column-header in-progress">
+                    <i class="fas fa-spinner"></i>
+                    <h3>In Progress</h3>
+                    <span class="task-count" id="in-progress-count">0</span>
+                </div>
+                <div id="in-progress-tasks" class="tasks-list">
+                    <!-- In Progress tasks injected here -->
+                </div>
+            </div>
+
+            <!-- Done Column -->
+            <div class="task-column">
+                <div class="column-header done">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Done</h3>
+                    <span class="task-count" id="done-count">0</span>
+                </div>
+                <div id="done-tasks" class="tasks-list">
+                    <!-- Done tasks injected here -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Floating Action Button -->

@@ -140,26 +140,41 @@ const loadTasks = async () => {
 };
 
 const renderTasks = () => {
-    const container = document.getElementById('tasks-container');
-    if (!container) return;
+    const todoContainer = document.getElementById('todo-tasks');
+    const inProgressContainer = document.getElementById('in-progress-tasks');
+    const doneContainer = document.getElementById('done-tasks');
 
-    if (tasks.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-tasks"></i>
-                <h2>No tasks yet</h2>
-                <p>Click "Add Task" to create your first task!</p>
-            </div>
-        `;
-        return;
-    }
+    if (!todoContainer || !inProgressContainer || !doneContainer) return;
 
-    container.innerHTML = tasks.map(task => `
-        <div class="task-card glass-panel ${task.is_done ? 'completed' : ''}">
+    // Group tasks by status
+    const todoTasks = tasks.filter(task => task.status === 'todo');
+    const inProgressTasks = tasks.filter(task => task.status === 'in_progress');
+    const doneTasks = tasks.filter(task => task.status === 'done');
+
+    // Update task counts
+    document.getElementById('todo-count').textContent = todoTasks.length;
+    document.getElementById('in-progress-count').textContent = inProgressTasks.length;
+    document.getElementById('done-count').textContent = doneTasks.length;
+
+    // Helper function to render task HTML
+    const renderTaskCard = (task) => {
+        // Determine checkbox state and class
+        let checkboxChecked = '';
+        let checkboxClass = '';
+
+        if (task.status === 'in_progress') {
+            checkboxClass = 'in-progress';
+        } else if (task.status === 'done') {
+            checkboxChecked = 'checked';
+            checkboxClass = 'done';
+        }
+
+        return `
+        <div class="task-card glass-panel ${task.status === 'done' ? 'completed' : ''}">
             <div class="task-checkbox-wrapper">
-                <input type="checkbox" ${task.is_done ? 'checked' : ''} 
-                       onchange="toggleTaskDone(${task.id}, this.checked)"
-                       title="${task.is_done ? 'Mark as incomplete' : 'Mark as complete'}">
+                <input type="checkbox" class="task-checkbox ${checkboxClass}" ${checkboxChecked}
+                       onchange="toggleTaskStatus(${task.id})"
+                       title="Change status">
             </div>
             <div class="task-content">
                 <div class="task-main">
@@ -183,7 +198,27 @@ const renderTasks = () => {
                 </button>
             </div>
         </div>
-    `).join('');
+    `;
+    };
+
+    // Render tasks in respective columns
+    if (todoTasks.length === 0) {
+        todoContainer.innerHTML = '<div class="empty-state"><p>No tasks</p></div>';
+    } else {
+        todoContainer.innerHTML = todoTasks.map(renderTaskCard).join('');
+    }
+
+    if (inProgressTasks.length === 0) {
+        inProgressContainer.innerHTML = '<div class="empty-state"><p>No tasks</p></div>';
+    } else {
+        inProgressContainer.innerHTML = inProgressTasks.map(renderTaskCard).join('');
+    }
+
+    if (doneTasks.length === 0) {
+        doneContainer.innerHTML = '<div class="empty-state"><p>No tasks</p></div>';
+    } else {
+        doneContainer.innerHTML = doneTasks.map(renderTaskCard).join('');
+    }
 };
 
 const getPriorityColor = (priority) => {
@@ -287,11 +322,25 @@ const deleteTask = async (taskId) => {
     }
 };
 
-const toggleTaskDone = async (taskId, isDone) => {
+const toggleTaskStatus = async (taskId) => {
     try {
-        await apiRequest(`/api/tasks/${taskId}/toggle`, {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        // Linear progression: todo -> in_progress -> done -> todo (restart)
+        let newStatus = 'in_progress';
+        if (task.status === 'todo') {
+            newStatus = 'in_progress';
+        } else if (task.status === 'in_progress') {
+            newStatus = 'done';
+        } else {
+            // If done, restart to todo
+            newStatus = 'todo';
+        }
+
+        await apiRequest(`/api/tasks/${taskId}`, {
             method: 'PUT',
-            body: JSON.stringify({ is_done: isDone })
+            body: JSON.stringify({ status: newStatus })
         });
         await loadTasks();
     } catch (error) {
@@ -304,7 +353,7 @@ window.showTaskModal = showTaskModal;
 window.closeModal = closeModal;
 window.editTask = editTask;
 window.deleteTask = deleteTask;
-window.toggleTaskDone = toggleTaskDone;
+window.toggleTaskStatus = toggleTaskStatus;
 
 const initDashboard = async () => {
     // Load user info

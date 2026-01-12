@@ -18,6 +18,7 @@ class Task(db.Model):
     title = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text, nullable=True)
     is_done = db.Column(db.Boolean, default=False, nullable=False)
+    status = db.Column(db.String(20), default='todo', nullable=False)  # 'todo', 'in_progress', 'done'
     priority = db.Column(db.String(20), default='medium', nullable=False)
     due_date = db.Column(db.String(20), nullable=True) # Storing as string to match previous schema simple text storage
     tags = db.Column(db.String(200), nullable=True)
@@ -30,6 +31,7 @@ class Task(db.Model):
             "title": self.title,
             "description": self.description,
             "is_done": self.is_done,
+            "status": self.status,
             "priority": self.priority,
             "due_date": self.due_date,
             "tags": self.tags,

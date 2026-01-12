@@ -6,7 +6,6 @@ from .models import Task
 
 from .auth import login_required
 
-
 bp = Blueprint('tasks', __name__, url_prefix='/api')
 
 

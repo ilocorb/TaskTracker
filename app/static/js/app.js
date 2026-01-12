@@ -139,7 +139,7 @@ const loadTasks = async () => {
     }
 };
 
-const renderTasks = () => {
+const renderTasks = (taskList = tasks) => {
     const todoContainer = document.getElementById('todo-tasks');
     const inProgressContainer = document.getElementById('in-progress-tasks');
     const doneContainer = document.getElementById('done-tasks');
@@ -147,9 +147,9 @@ const renderTasks = () => {
     if (!todoContainer || !inProgressContainer || !doneContainer) return;
 
     // Group tasks by status
-    const todoTasks = tasks.filter(task => task.status === 'todo');
-    const inProgressTasks = tasks.filter(task => task.status === 'in_progress');
-    const doneTasks = tasks.filter(task => task.status === 'done');
+    const todoTasks = taskList.filter(task => task.status === 'todo');
+    const inProgressTasks = taskList.filter(task => task.status === 'in_progress');
+    const doneTasks = taskList.filter(task => task.status === 'done');
 
     // Update task counts
     document.getElementById('todo-count').textContent = todoTasks.length;
@@ -220,6 +220,59 @@ const renderTasks = () => {
         doneContainer.innerHTML = doneTasks.map(renderTaskCard).join('');
     }
 };
+
+const applyFilters = () => {
+    const filterValue = document.getElementById('filter-select').value;
+    const sortValue = document.getElementById('sort-select').value;
+    const searchQuery = document.getElementById('search-input').value.toLowerCase();
+
+    let filteredTasks = [...tasks];
+
+    filteredTasks = filteredTasks.filter(task => {
+        switch (filterValue) {
+            case 'open':
+                return task.status !== 'done';
+
+            case 'done':
+                return task.status === 'done';
+
+            case 'high_priority':
+                return task.priority === 'high';
+
+            case 'overdue':
+                if (!task.due_date) return false;
+                return new Date(task.due_date) < new Date() && task.status !== 'done';
+
+            default:
+                return true;
+        }
+    });
+
+    if (searchQuery) {
+        filteredTasks = filteredTasks.filter(task =>
+            task.title.toLowerCase().includes(searchQuery) ||
+            (task.description && task.description.toLowerCase().includes(searchQuery)) ||
+            (task.tags && task.tags.toLowerCase().includes(searchQuery))
+        );
+    }
+
+    filteredTasks.sort((a, b) => {
+        switch (sortValue) {
+            case 'due_date':
+                return new Date(a.due_date) - new Date(b.due_date);
+
+            case 'priority':
+                const priorityOrder = { high: 1, medium: 2, low: 3 };
+                return priorityOrder[a.priority] - priorityOrder[b.priority];
+
+            case 'created_at':
+            default:
+                return new Date(b.created_at) - new Date(a.created_at);
+        }
+    });
+    renderTasks(filteredTasks);
+};
+
 
 const getPriorityColor = (priority) => {
     const colors = {
@@ -409,4 +462,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (document.getElementById('dashboard-section')) {
         initDashboard();
     }
+    
+    document.getElementById('filter-select').addEventListener('change', applyFilters);
+    document.getElementById('sort-select').addEventListener('change', applyFilters);
+    document.getElementById('search-input').addEventListener('input', applyFilters);
 });

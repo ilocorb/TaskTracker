@@ -170,7 +170,8 @@ const renderTasks = (taskList = tasks) => {
         }
 
         return `
-        <div class="task-card glass-panel ${task.status === 'done' ? 'completed' : ''}">
+        <div class="task-card glass-panel ${task.status === 'done' ? 'completed' : ''}
+                                        ${isOverdue(task) ? 'overdue' : ''}">
             <div class="task-checkbox-wrapper">
                 <input type="checkbox" class="task-checkbox ${checkboxClass}" ${checkboxChecked}
                        onchange="toggleTaskStatus(${task.id})"
@@ -182,10 +183,16 @@ const renderTasks = (taskList = tasks) => {
                     <span class="task-priority" style="background: ${getPriorityColor(task.priority)}">
                         ${task.priority}
                     </span>
+                    ${isOverdue(task) ? `
+                    <span class="task-overdue-badge">
+                        <i class="fas fa-exclamation-circle"></i> Overdue
+                    </span>` : ''}
                 </div>
                 ${task.description ? `<p class="task-description">${escapeHtml(task.description)}</p>` : ''}
                 <div class="task-meta">
-                    ${task.due_date ? `<span><i class="fas fa-calendar"></i> ${task.due_date}</span>` : ''}
+                    ${task.due_date ? `<span class="${isOverdue(task) ? 'overdue-date' : ''}">
+                        <i class="fas fa-calendar"></i> ${task.due_date}
+                    </span>` : ''}
                     ${task.tags ? `<span><i class="fas fa-tags"></i> ${task.tags}</span>` : ''}
                 </div>
             </div>
@@ -248,14 +255,6 @@ const applyFilters = () => {
         }
     });
 
-    if (searchQuery) {
-        filteredTasks = filteredTasks.filter(task =>
-            task.title.toLowerCase().includes(searchQuery) ||
-            (task.description && task.description.toLowerCase().includes(searchQuery)) ||
-            (task.tags && task.tags.toLowerCase().includes(searchQuery))
-        );
-    }
-
     filteredTasks.sort((a, b) => {
         switch (sortValue) {
             case 'due_date':
@@ -270,9 +269,23 @@ const applyFilters = () => {
                 return new Date(b.created_at) - new Date(a.created_at);
         }
     });
+
+    if (searchQuery) {
+        filteredTasks = filteredTasks.filter(task =>
+            task.title.toLowerCase().includes(searchQuery) ||
+            task.description && task.description.toLowerCase().includes(searchQuery) || /*TO-DO maybe remove searching for desc?*/ 
+            task.tags && task.tags.toLowerCase().includes(searchQuery)
+        );
+    }
     renderTasks(filteredTasks);
 };
 
+const isOverdue = (task) => {
+    if (!task.due_date) return false;
+    if (task.status === 'done') return false;
+
+    return new Date(task.due_date) < new Date();
+};
 
 const getPriorityColor = (priority) => {
     const colors = {

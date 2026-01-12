@@ -683,6 +683,10 @@ select:focus {
     border-left-color: var(--primary-color);
 }
 
+.task-card.overdue:hover {
+    border-left-color: #ff4d4d;
+}
+
 .task-card.completed {
     opacity: 0.6;
 }
@@ -817,6 +821,24 @@ select:focus {
 .task-meta i {
     margin-right: 0.3rem;
 }
+
+.task-card.overdue {
+    border-left: 4px solid #ff4d4d;
+}
+
+.task-overdue-badge {
+    margin-left: 0px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.15);
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
 
 /* Task Actions - Mobile: Always visible */
 .task-actions {

@@ -132,14 +132,14 @@ const loadTasks = async () => {
     try {
         const data = await apiRequest('/api/tasks');
         tasks = data.tasks;
-        renderTasks();
+        renderTasks(tasks);
     } catch (error) {
         console.error('Failed to load tasks:', error);
         showAlert('Failed to load tasks', 'error');
     }
 };
 
-const renderTasks = () => {
+const renderTasks = (taskList = tasks) => {
     const todoContainer = document.getElementById('todo-tasks');
     const inProgressContainer = document.getElementById('in-progress-tasks');
     const doneContainer = document.getElementById('done-tasks');
@@ -147,9 +147,9 @@ const renderTasks = () => {
     if (!todoContainer || !inProgressContainer || !doneContainer) return;
 
     // Group tasks by status
-    const todoTasks = tasks.filter(task => task.status === 'todo');
-    const inProgressTasks = tasks.filter(task => task.status === 'in_progress');
-    const doneTasks = tasks.filter(task => task.status === 'done');
+    const todoTasks = taskList.filter(task => task.status === 'todo');
+    const inProgressTasks = taskList.filter(task => task.status === 'in_progress');
+    const doneTasks = taskList.filter(task => task.status === 'done');
 
     // Update task counts
     document.getElementById('todo-count').textContent = todoTasks.length;
@@ -170,7 +170,8 @@ const renderTasks = () => {
         }
 
         return `
-        <div class="task-card glass-panel ${task.status === 'done' ? 'completed' : ''}" 
+        <div class="task-card glass-panel ${task.status === 'done' ? 'completed' : ''}
+                                        ${isOverdue(task) ? 'overdue' : ''}" 
              data-task-id="${task.id}" 
              onclick="handleTaskCardClick(event, ${task.id})">
             <div class="task-checkbox-wrapper">
@@ -184,10 +185,16 @@ const renderTasks = () => {
                     <span class="task-priority" style="background: ${getPriorityColor(task.priority)}" title="${task.priority}">
                         ${task.priority}
                     </span>
+                    ${isOverdue(task) ? `
+                    <span class="task-overdue-badge">
+                        <i class="fas fa-exclamation-circle"></i> Overdue
+                    </span>` : ''}
                 </div>
                 ${task.description ? `<p class="task-description">${escapeHtml(task.description)}</p>` : ''}
                 <div class="task-meta">
-                    ${task.due_date ? `<span><i class="fas fa-calendar"></i> ${task.due_date}</span>` : ''}
+                    ${task.due_date ? `<span class="${isOverdue(task) ? 'overdue-date' : ''}">
+                        <i class="fas fa-calendar"></i> ${task.due_date}
+                    </span>` : ''}
                     ${task.tags ? `<span><i class="fas fa-tags"></i> ${task.tags}</span>` : ''}
                 </div>
             </div>
@@ -221,6 +228,87 @@ const renderTasks = () => {
     } else {
         doneContainer.innerHTML = doneTasks.map(renderTaskCard).join('');
     }
+
+    updateProgressBar(tasks);
+};
+
+const applyFilters = () => {
+    const filterValue = document.getElementById('filter-select').value;
+    const sortValue = document.getElementById('sort-select').value;
+    const searchQuery = document.getElementById('search-input').value.toLowerCase();
+
+    let filteredTasks = [...tasks];
+
+    filteredTasks = filteredTasks.filter(task => {
+        switch (filterValue) {
+            case 'open':
+                return task.status !== 'done';
+
+            case 'done':
+                return task.status === 'done';
+
+            case 'high_priority':
+                return task.priority === 'high';
+
+            case 'overdue':
+                if (!task.due_date) return false;
+                return new Date(task.due_date) < new Date() && task.status !== 'done';
+
+            default:
+                return true;
+        }
+    });
+
+    filteredTasks.sort((a, b) => {
+        switch (sortValue) {
+            case 'due_date':
+                return new Date(a.due_date) - new Date(b.due_date);
+
+            case 'priority':
+                const priorityOrder = { high: 1, medium: 2, low: 3 };
+                aPriority = priorityOrder[a.priority];
+                bPriority = priorityOrder[b.priority];
+                
+                /* sort overdue tasks first */
+                if (aPriority === bPriority) {
+                    return isOverdue(a) ? -1 : 1;
+                } else {
+                    return aPriority - bPriority;
+                }
+                
+            case 'created_at':
+                return new Date(b.created_at) - new Date(a.created_at);
+        }
+    });
+
+    if (searchQuery) {
+        filteredTasks = filteredTasks.filter(task =>
+            task.title.toLowerCase().includes(searchQuery) ||
+            task.description && task.description.toLowerCase().includes(searchQuery) || /*TO-DO maybe remove searching for desc?*/ 
+            task.tags && task.tags.toLowerCase().includes(searchQuery)
+        );
+    }
+    renderTasks(filteredTasks);
+};
+
+const isOverdue = (task) => {
+    if (!task.due_date) return false;
+    if (task.status === 'done') return false;
+
+    return new Date(task.due_date) < new Date();
+};
+
+const updateProgressBar = (taskList = tasks) => {
+    const totalTasks = taskList.length;
+    const completedTasks = taskList.filter(task => task.status === 'done').length;
+
+    const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+
+    const progressText = document.getElementById('progress-text');
+    const progressFill = document.getElementById('progress-fill');
+
+    progressText.textContent = `${progress}%`;
+    progressFill.style.width = `${progress}%`;
 };
 
 const getPriorityColor = (priority) => {
@@ -451,4 +539,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (document.getElementById('dashboard-section')) {
         initDashboard();
     }
+    
+    document.getElementById('filter-select').addEventListener('change', applyFilters);
+    document.getElementById('sort-select').addEventListener('change', applyFilters);
+    document.getElementById('search-input').addEventListener('input', applyFilters);
 });

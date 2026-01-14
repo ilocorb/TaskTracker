@@ -284,7 +284,6 @@ const applyFilters = () => {
     if (searchQuery) {
         filteredTasks = filteredTasks.filter(task =>
             task.title.toLowerCase().includes(searchQuery) ||
-            task.description && task.description.toLowerCase().includes(searchQuery) || /*TO-DO maybe remove searching for desc?*/ 
             task.tags && task.tags.toLowerCase().includes(searchQuery)
         );
     }

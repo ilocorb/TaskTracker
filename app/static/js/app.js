@@ -142,7 +142,10 @@ const updateQuickStats = () => {
     const allTasks = tasks.length;
 
     // Open tasks
-    const openTasks = tasks.filter(task => task.status === 'todo').length;
+    const openTasks = tasks.filter(task => task.status !== 'done').length;
+
+    // ToDo tasks
+    const todoTasks = tasks.filter(task => task.status === 'todo').length;
 
     // In progress tasks
     const inProgress = tasks.filter(task => task.status === 'in_progress').length;
@@ -186,24 +189,24 @@ const updateQuickStats = () => {
     }).length;
 
     // Update numbers in the UI
-    const openEl = document.getElementById('open-count');
+    const todoEl = document.getElementById('open-count');
     const dueTodayEl = document.getElementById('due-today-count');
     const overdueEl = document.getElementById('overdue-count');
     const weekCompletedEl = document.getElementById('week-completed-count');
     const inProgressEl = document.getElementById('in-progress-count');
     const completedTodayEl = document.getElementById('completed-today-count');
 
-    if (openEl) openEl.textContent = openTasks;
+    if (todoEl) todoEl.textContent = todoTasks;
     if (inProgressEl) inProgressEl.textContent = inProgress;
     if (weekCompletedEl) weekCompletedEl.textContent = completedThisWeek;
 
     // Bottom stats show as ratio (e.g., "3 / 10")
-    if (dueTodayEl) dueTodayEl.textContent = `${dueToday} / ${allTasks}`;
-    if (overdueEl) overdueEl.textContent = `${overdue} / ${allTasks}`;
+    if (dueTodayEl) dueTodayEl.textContent = `${dueToday} / ${openTasks}`;
+    if (overdueEl) overdueEl.textContent = `${overdue} / ${openTasks}`;
     if (completedTodayEl) completedTodayEl.textContent = `${completedToday} / ${allTasks}`;
 
     // Scale progress bars based on total open tasks
-    const totalForScaling = allTasks || 1;
+    const totalForScaling = openTasks || 1;
 
     // Update progress bars for bottom stat cards
     const dueTodayBar = document.getElementById('due-today-bar');
@@ -219,7 +222,7 @@ const updateQuickStats = () => {
     }
 
     if (completedTodayBar) {
-        completedTodayBar.style.width = `${(completedToday / totalForScaling) * 100}%`;
+        completedTodayBar.style.width = `${(completedToday / allTasks) * 100}%`;
     }
 };
 

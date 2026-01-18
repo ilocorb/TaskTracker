@@ -4,31 +4,107 @@
 
 <!-- Dashboard Section -->
 <section id="dashboard-section">
-    <!-- Header -->
-    <header class="glass-header">
-        <div class="header-top">
-            <div class="user-welcome">
-                <span>Hello,</span>
+    <!-- Greeting Section (Outside Card) -->
+    <div class="greeting-section">
+        <div class="greeting-content">
+            <div class="greeting-line">
+                <span id="greeting-time">Good Evening,</span>
                 <strong id="user-display-name">Loading...</strong>
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button id="admin-btn" class="icon-btn" title="Admin Panel" style="display: none;">
-                    <i class="fas fa-user-shield"></i>
-                </button>
-                <button id="logout-btn" class="icon-btn" title="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+            <div class="date-context">
+                <span id="current-date">Tuesday, Jan 14</span>
+                <span class="separator">•</span>
+                <span id="week-number">Week 3</span>
             </div>
         </div>
+        <div class="greeting-actions">
+            <button id="admin-btn" class="icon-btn" title="Admin Panel" style="display: none;">
+                <i class="fas fa-user-shield"></i>
+            </button>
+            <button id="logout-btn" class="icon-btn" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </div>
 
-        <!-- Progress Bar -->
-        <div class="progress-container">
-            <div class="progress-labels">
-                <span>Daily Progress</span>
-                <span id="progress-text">0%</span>
+    <!-- Header -->
+    <header class="glass-header">
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Top Row -->
+            <div class="dashboard-top-row">
+                <!-- Left Card: Open Tasks -->
+                <div class="side-card">
+                    <div class="side-card-top">
+                        <i class="fas fa-tasks"></i>
+                        <span class="side-card-number" id="open-count">0</span>
+                    </div>
+                    <span class="side-card-label">Open Tasks</span>
+                </div>
+
+                <!-- Center: Circular Progress -->
+                <div class="progress-circle-container">
+                    <svg class="progress-circle" width="100" height="100">
+                        <defs>
+                            <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#2575fc;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#6a11cb;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="progress-circle-bg" cx="50" cy="50" r="44"></circle>
+                        <circle class="progress-circle-fill" id="progress-circle" cx="50" cy="50" r="44"></circle>
+                    </svg>
+                    <div class="progress-circle-text">
+                        <span class="progress-percentage" id="progress-text">0%</span>
+                        <span class="progress-label">Daily</span>
+                    </div>
+                </div>
+
+                <!-- Right Card: In Progress Tasks -->
+                <div class="side-card">
+                    <div class="side-card-top">
+                        <i class="fas fa-spinner"></i>
+                        <span class="side-card-number" id="in-progress-count">0</span>
+                    </div>
+                    <span class="side-card-label"> In Progress</span>
+                </div>
             </div>
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" id="progress-fill" style="width: 0%;"></div>
+
+            <!-- Bottom Row: 3 Stat Cards with Bars -->
+            <div class="dashboard-bottom-row">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <i class="fas fa-calendar-day"></i>
+                        <span class="stat-card-label">Due Today</span>
+                    </div>
+                    <div class="stat-card-bar-container">
+                        <div class="stat-card-bar stat-bar-today" id="due-today-bar"></div>
+                    </div>
+                    <span class="stat-card-number" id="due-today-count">0</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span class="stat-card-label">Overdue</span>
+                    </div>
+                    <div class="stat-card-bar-container">
+                        <div class="stat-card-bar stat-bar-overdue" id="overdue-bar"></div>
+                    </div>
+                    <span class="stat-card-number" id="overdue-count">0</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <i class="fas fa-star"></i>
+                        <span class="stat-card-label">Completed</span>
+                    </div>
+                    <div class="stat-card-bar-container">
+                        <div class="stat-card-bar stat-bar-completed" id="completed-today-bar"></div>
+                    </div>
+                    <span class="stat-card-number" id="completed-today-count">0</span>
+                </div>
             </div>
         </div>
     </header>
@@ -43,8 +119,6 @@
         <div class="filter-sort-row">
             <select id="filter-select" class="glass-select">
                 <option value="all">All Tasks</option>
-                <option value="open">Open</option>
-                <option value="done">Completed</option>
                 <option value="high_priority">High Priority</option>
                 <option value="overdue">Overdue</option>
             </select>
@@ -54,6 +128,31 @@
                 <option value="priority">Priority</option>
             </select>
         </div>
+    </div>
+
+    <!-- Mobile Status Filter Tabs (replaces column headers on mobile) -->
+    <div class="mobile-filter-tabs">
+        <button class="status-tab" data-status="todo">
+            <div class="tab-label-row">
+                <i class="fas fa-circle"></i>
+                <span class="tab-label">To Do</span>
+            </div>
+            <span class="tab-count" id="tab-todo-count">0</span>
+        </button>
+        <button class="status-tab" data-status="in_progress">
+            <div class="tab-label-row">
+                <i class="fas fa-spinner"></i>
+                <span class="tab-label">In Progress</span>
+            </div>
+            <span class="tab-count" id="tab-in-progress-count">0</span>
+        </button>
+        <button class="status-tab" data-status="done">
+            <div class="tab-label-row">
+                <i class="fas fa-check-circle"></i>
+                <span class="tab-label">Done</span>
+            </div>
+            <span class="tab-count" id="tab-done-count">0</span>
+        </button>
     </div>
 
     <!-- Task List - 3 Column Grid for Desktop, Single List for Mobile -->

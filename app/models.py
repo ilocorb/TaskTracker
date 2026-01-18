@@ -13,6 +13,7 @@ class User(db.Model):
             "username": self.username
         }
 
+
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120), nullable=False)
@@ -23,6 +24,7 @@ class Task(db.Model):
     due_date = db.Column(db.String(20), nullable=True) # Storing as string to match previous schema simple text storage
     tags = db.Column(db.String(200), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def to_dict(self):
@@ -36,5 +38,6 @@ class Task(db.Model):
             "due_date": self.due_date,
             "tags": self.tags,
             "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "user_id": self.user_id
         }

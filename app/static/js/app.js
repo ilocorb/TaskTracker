@@ -96,6 +96,133 @@ const initRegisterPage = () => {
 // Dashboard Functionality
 let currentUser = null;
 
+// Dashboard Context & Statistics
+const updateDashboardContext = () => {
+    const now = new Date();
+
+    // Time-based greeting
+    const hour = now.getHours();
+    let greeting = 'Good Evening';
+    if (hour < 12) {
+        greeting = 'Good Morning';
+    } else if (hour < 18) {
+        greeting = 'Good Afternoon';
+    }
+
+    const greetingElement = document.getElementById('greeting-time');
+    if (greetingElement) {
+        greetingElement.textContent = greeting + ',';
+    }
+
+    // Current date (e.g., "Tuesday, Jan 14")
+    const dateOptions = { weekday: 'long', month: 'short', day: 'numeric' };
+    const formattedDate = now.toLocaleDateString('en-US', dateOptions);
+
+    const dateElement = document.getElementById('current-date');
+    if (dateElement) {
+        dateElement.textContent = formattedDate;
+    }
+
+    // Week number calculation
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const pastDaysOfYear = (now - startOfYear) / 86400000;
+    const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
+
+    const weekElement = document.getElementById('week-number');
+    if (weekElement) {
+        weekElement.textContent = `Week ${weekNumber}`;
+    }
+};
+
+const updateQuickStats = () => {
+    // Get today's date in UTC (midnight)
+    const now = new Date();
+    const utcToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    // All Tasks
+    const allTasks = tasks.length;
+
+    // Open tasks
+    const openTasks = tasks.filter(task => task.status === 'todo').length;
+
+    // In progress tasks
+    const inProgress = tasks.filter(task => task.status === 'in_progress').length;
+
+    // Tasks due today
+    const dueToday = tasks.filter(task => {
+        if (!task.due_date || task.status === 'done') return false;
+        const taskDate = new Date(task.due_date);
+        return taskDate.getDate() === now.getDate();
+    }).length;
+
+    // Overdue tasks
+    const overdue = tasks.filter(task => {
+        if (!task.due_date || task.status === 'done') return false;
+        const taskDate = new Date(task.due_date);
+        return taskDate.getDate() < now.getDate();
+    }).length;
+
+    // Tasks completed this week
+    const startOfWeek = new Date(utcToday);
+    startOfWeek.setUTCDate(utcToday.getUTCDate() - utcToday.getUTCDay());
+    const completedThisWeek = tasks.filter(task => {
+        if (task.status !== 'done' || !task.updated_at) return false;
+        const updatedDate = new Date(task.updated_at);
+        return updatedDate >= startOfWeek;
+    }).length;
+
+    // Tasks completed today (UTC)
+    const completedToday = tasks.filter(task => {
+        if (task.status !== 'done' || !task.updated_at) return false;
+        const updatedDate = new Date(task.updated_at);
+        const utcUpdatedDate = new Date(Date.UTC(
+            updatedDate.getUTCFullYear(),
+            updatedDate.getUTCMonth(),
+            updatedDate.getUTCDate(),
+            updatedDate.getUTCHours(),
+            updatedDate.getUTCMinutes(),
+            updatedDate.getUTCSeconds()
+        ));
+        return utcUpdatedDate.getDate() === utcToday.getDate();
+    }).length;
+
+    // Update numbers in the UI
+    const openEl = document.getElementById('open-count');
+    const dueTodayEl = document.getElementById('due-today-count');
+    const overdueEl = document.getElementById('overdue-count');
+    const weekCompletedEl = document.getElementById('week-completed-count');
+    const inProgressEl = document.getElementById('in-progress-count');
+    const completedTodayEl = document.getElementById('completed-today-count');
+
+    if (openEl) openEl.textContent = openTasks;
+    if (inProgressEl) inProgressEl.textContent = inProgress;
+    if (weekCompletedEl) weekCompletedEl.textContent = completedThisWeek;
+
+    // Bottom stats show as ratio (e.g., "3 / 10")
+    if (dueTodayEl) dueTodayEl.textContent = `${dueToday} / ${allTasks}`;
+    if (overdueEl) overdueEl.textContent = `${overdue} / ${allTasks}`;
+    if (completedTodayEl) completedTodayEl.textContent = `${completedToday} / ${allTasks}`;
+
+    // Scale progress bars based on total open tasks
+    const totalForScaling = allTasks || 1;
+
+    // Update progress bars for bottom stat cards
+    const dueTodayBar = document.getElementById('due-today-bar');
+    const overdueBar = document.getElementById('overdue-bar');
+    const completedTodayBar = document.getElementById('completed-today-bar');
+
+    if (dueTodayBar) {
+        dueTodayBar.style.width = `${(dueToday / totalForScaling) * 100}%`;
+    }
+
+    if (overdueBar) {
+        overdueBar.style.width = `${(overdue / totalForScaling) * 100}%`;
+    }
+
+    if (completedTodayBar) {
+        completedTodayBar.style.width = `${(completedToday / totalForScaling) * 100}%`;
+    }
+};
+
 const loadCurrentUser = async () => {
     try {
         const data = await apiRequest('/auth/api/me');
@@ -127,6 +254,7 @@ const loadCurrentUser = async () => {
 // Task Management
 let tasks = [];
 let editingTaskId = null;
+let mobileStatusFilter = null;
 
 const loadTasks = async () => {
     try {
@@ -146,15 +274,29 @@ const renderTasks = (taskList = tasks) => {
 
     if (!todoContainer || !inProgressContainer || !doneContainer) return;
 
-    // Group tasks by status
+    // Calculate counts from the FULL task list (not filtered)
+    const todoCountTotal = tasks.filter(task => task.status === 'todo').length;
+    const inProgressCountTotal = tasks.filter(task => task.status === 'in_progress').length;
+    const doneCountTotal = tasks.filter(task => task.status === 'done').length;
+
+    // Update task counts (both column headers and mobile tabs) with FULL counts
+    document.getElementById('todo-count').textContent = todoCountTotal;
+    document.getElementById('in-progress-count').textContent = inProgressCountTotal;
+    document.getElementById('done-count').textContent = doneCountTotal;
+
+    // Update mobile tab counts with FULL counts
+    const tabTodoCount = document.getElementById('tab-todo-count');
+    const tabInProgressCount = document.getElementById('tab-in-progress-count');
+    const tabDoneCount = document.getElementById('tab-done-count');
+
+    if (tabTodoCount) tabTodoCount.textContent = todoCountTotal;
+    if (tabInProgressCount) tabInProgressCount.textContent = inProgressCountTotal;
+    if (tabDoneCount) tabDoneCount.textContent = doneCountTotal;
+
+    // Group tasks by status from the FILTERED list for rendering
     const todoTasks = taskList.filter(task => task.status === 'todo');
     const inProgressTasks = taskList.filter(task => task.status === 'in_progress');
     const doneTasks = taskList.filter(task => task.status === 'done');
-
-    // Update task counts
-    document.getElementById('todo-count').textContent = todoTasks.length;
-    document.getElementById('in-progress-count').textContent = inProgressTasks.length;
-    document.getElementById('done-count').textContent = doneTasks.length;
 
     // Helper function to render task HTML
     const renderTaskCard = (task) => {
@@ -230,6 +372,7 @@ const renderTasks = (taskList = tasks) => {
     }
 
     updateProgressBar(tasks);
+    updateQuickStats();
 };
 
 const applyFilters = () => {
@@ -239,14 +382,23 @@ const applyFilters = () => {
 
     let filteredTasks = [...tasks];
 
+    // Apply mobile status filter first (on mobile only)
+    if (window.innerWidth < 768 && mobileStatusFilter !== null) {
+        switch (mobileStatusFilter) {
+            case 'todo':
+                filteredTasks = filteredTasks.filter(task => task.status === 'todo');
+                break;
+            case 'in_progress':
+                filteredTasks = filteredTasks.filter(task => task.status === 'in_progress');
+                break;
+            case 'done':
+                filteredTasks = filteredTasks.filter(task => task.status === 'done');
+                break;
+        }
+    }
+
     filteredTasks = filteredTasks.filter(task => {
         switch (filterValue) {
-            case 'open':
-                return task.status !== 'done';
-
-            case 'done':
-                return task.status === 'done';
-
             case 'high_priority':
                 return task.priority === 'high';
 
@@ -268,14 +420,14 @@ const applyFilters = () => {
                 const priorityOrder = { high: 1, medium: 2, low: 3 };
                 aPriority = priorityOrder[a.priority];
                 bPriority = priorityOrder[b.priority];
-                
+
                 /* sort overdue tasks first */
                 if (aPriority === bPriority) {
                     return isOverdue(a) ? -1 : 1;
                 } else {
                     return aPriority - bPriority;
                 }
-                
+
             case 'created_at':
                 return new Date(b.created_at) - new Date(a.created_at);
         }
@@ -294,7 +446,7 @@ const isOverdue = (task) => {
     if (!task.due_date) return false;
     if (task.status === 'done') return false;
 
-    return new Date(task.due_date) < new Date();
+    return new Date(task.due_date).getDate() < new Date().getDate();
 };
 
 const updateProgressBar = (taskList = tasks) => {
@@ -303,11 +455,22 @@ const updateProgressBar = (taskList = tasks) => {
 
     const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
 
+    // Update text
     const progressText = document.getElementById('progress-text');
-    const progressFill = document.getElementById('progress-fill');
+    if (progressText) {
+        progressText.textContent = `${progress}%`;
+    }
 
-    progressText.textContent = `${progress}%`;
-    progressFill.style.width = `${progress}%`;
+    // Update circular progress indicator
+    const progressCircle = document.getElementById('progress-circle');
+    if (progressCircle) {
+        // Mobile-first: 44px radius for mobile, 70px for desktop
+        const isDesktop = window.innerWidth >= 768;
+        const radius = isDesktop ? 70 : 44;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference - (progress / 100) * circumference;
+        progressCircle.style.strokeDashoffset = offset;
+    }
 };
 
 const getPriorityColor = (priority) => {
@@ -380,6 +543,7 @@ const saveTask = async () => {
         tags: document.getElementById('task-tags').value
     };
 
+    console.log(taskData.due_date);
     try {
         if (editingTaskId) {
             await apiRequest(`/api/tasks/${editingTaskId}`, {
@@ -465,6 +629,37 @@ const handleTaskCardClick = (event, taskId) => {
     editTask(taskId);
 };
 
+// Initialize mobile filter tabs
+const initMobileFilterTabs = () => {
+    const tabs = document.querySelectorAll('.status-tab');
+    if (!tabs.length) return;
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const clickedStatus = tab.getAttribute('data-status');
+
+            // Toggle behavior: if clicking the same tab, deactivate it and show all
+            if (mobileStatusFilter === clickedStatus) {
+                // Deactivate all tabs and show all tasks
+                tabs.forEach(t => t.classList.remove('active'));
+                mobileStatusFilter = null;
+            } else {
+                // Remove active class from all tabs
+                tabs.forEach(t => t.classList.remove('active'));
+
+                // Add active class to clicked tab
+                tab.classList.add('active');
+
+                // Update filter state
+                mobileStatusFilter = clickedStatus;
+            }
+
+            // Re-apply filters
+            applyFilters();
+        });
+    });
+};
+
 // Make functions global
 window.showTaskModal = showTaskModal;
 window.closeModal = closeModal;
@@ -477,8 +672,14 @@ const initDashboard = async () => {
     // Load user info
     await loadCurrentUser();
 
+    // Update dashboard context (date, time, week)
+    updateDashboardContext();
+
     // Load tasks
     await loadTasks();
+
+    // Initialize mobile filter tabs
+    initMobileFilterTabs();
 
     // Setup add task button
     const addTaskBtn = document.getElementById('add-task-btn');
@@ -538,7 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (document.getElementById('dashboard-section')) {
         initDashboard();
     }
-    
+
     document.getElementById('filter-select').addEventListener('change', applyFilters);
     document.getElementById('sort-select').addEventListener('change', applyFilters);
     document.getElementById('search-input').addEventListener('input', applyFilters);

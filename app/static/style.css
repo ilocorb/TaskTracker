@@ -7,7 +7,6 @@
     --text-muted: rgba(255, 255, 255, 0.7);
     --glass-bg: rgba(255, 255, 255, 0.1);
     --glass-border: rgba(255, 255, 255, 0.2);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     --font-main: 'Outfit', sans-serif;
 }
 
@@ -27,7 +26,7 @@ body {
     position: relative;
 }
 
-/* Background Animation */
+/* Background Animation - Static on Mobile, Animated on Desktop */
 .background-blobs {
     position: fixed;
     top: 0;
@@ -43,7 +42,9 @@ body {
     border-radius: 50%;
     filter: blur(80px);
     opacity: 0.6;
-    animation: move 10s infinite alternate;
+    will-change: transform;
+    transform: translateZ(0);
+    /* No animation by default - mobile has static blobs */
 }
 
 .blob-1 {
@@ -60,7 +61,6 @@ body {
     width: 60vw;
     height: 60vw;
     background: var(--secondary-color);
-    animation-delay: -5s;
 }
 
 .blob-3 {
@@ -70,17 +70,6 @@ body {
     height: 40vw;
     background: var(--accent-color);
     opacity: 0.4;
-    animation: move 15s infinite alternate-reverse;
-}
-
-@keyframes move {
-    from {
-        transform: translate(0, 0) scale(1);
-    }
-
-    to {
-        transform: translate(30px, -30px) scale(1.1);
-    }
 }
 
 /* Layout */
@@ -368,58 +357,7 @@ select:focus {
     flex-shrink: 0;
 }
 
-/* Glass Header */
-.glass-header {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 24px;
-    border: 1px solid var(--glass-border);
-}
 
-.header-top {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.user-welcome {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.greeting-line {
-    display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
-    font-size: 1.1rem;
-}
-
-.greeting-line #greeting-time {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-}
-
-.greeting-line strong {
-    color: var(--text-color);
-    font-size: 1.1rem;
-}
-
-.date-context {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-}
-
-.date-context .separator {
-    opacity: 0.5;
-}
 
 /* Dashboard Grid Layout */
 .dashboard-grid {
@@ -813,20 +751,7 @@ select:focus {
     animation: fadeIn 0.3s ease;
 }
 
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    animation: fadeIn 0.3s ease;
-}
+
 
 @keyframes fadeIn {
     from {
@@ -932,23 +857,7 @@ select:focus {
     margin-top: 2rem;
 }
 
-.btn-secondary {
-    padding: 0.8rem 1.5rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    background: transparent;
-    color: var(--text-color);
-    font-family: var(--font-main);
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
 
-.btn-secondary:hover {
-    background: var(--glass-bg);
-    transform: translateY(-2px);
-}
 
 .btn-delete-modal {
     padding: 14px 20px;
@@ -974,20 +883,6 @@ select:focus {
 
 .btn-delete-modal:active {
     transform: scale(0.98);
-}
-
-/* Dashboard Container */
-.dashboard-container {
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.controls-section {
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 /* Tasks Container - Mobile First */
@@ -1111,6 +1006,7 @@ select:focus {
     background: rgba(106, 17, 203, 0.1);
 }
 
+/* In Progress State */
 .task-checkbox-wrapper input[type="checkbox"].in-progress {
     background: linear-gradient(135deg, #fbbf24, #f59e0b);
     border-color: #fbbf24;
@@ -1129,12 +1025,12 @@ select:focus {
     line-height: 1;
 }
 
-.task-checkbox-wrapper input[type="checkbox"]:checked {
-
+/* Done State - use class instead of :checked */
+.task-checkbox-wrapper input[type="checkbox"].done {
     border-color: var(--primary-color);
 }
 
-.task-checkbox-wrapper input[type="checkbox"]:checked::after {
+.task-checkbox-wrapper input[type="checkbox"].done::after {
     content: '\f058';
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
@@ -1209,24 +1105,6 @@ select:focus {
 .task-meta i {
     margin-right: 0.3rem;
 }
-
-.task-card.overdue {
-    border-left: 4px solid #ff4d4d;
-}
-
-.task-overdue-badge {
-    margin-left: 0px;
-    padding: 2px 8px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #ff4d4d;
-    background: rgba(255, 77, 77, 0.15);
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
 
 .task-card.overdue {
     border-left: 4px solid #ff4d4d;
@@ -1326,7 +1204,7 @@ select:focus {
 
 .fab:hover {
     transform: scale(1.1) rotate(90deg);
-    box-shadow: 0 8px 30px rgba(106, 17, 203, 0.6);
+    box-shadow: 0 8px 30px rgba(255, 157, 11, 0.6);
 }
 
 .fab:active {

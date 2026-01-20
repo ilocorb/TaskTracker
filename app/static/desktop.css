@@ -1,6 +1,29 @@
 /* Desktop View (≥768px) */
 @media (min-width: 768px) {
 
+    /* Blob Animations - Desktop Only */
+    .blob {
+        animation: move 10s infinite alternate;
+    }
+
+    .blob-2 {
+        animation-delay: -5s;
+    }
+
+    .blob-3 {
+        animation: move 15s infinite alternate-reverse;
+    }
+
+    @keyframes move {
+        from {
+            transform: translate(0, 0) scale(1);
+        }
+
+        to {
+            transform: translate(30px, -30px) scale(1.1);
+        }
+    }
+
     /* Desktop: Full width for dashboard */
     .container {
         max-width: 100%;

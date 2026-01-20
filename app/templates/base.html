@@ -4,13 +4,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='desktop.css') }}">
-  {% block extra_css %}{% endblock %}
+
+  <!-- Resource hints for faster external resource loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+
+  <!-- Critical CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='desktop.css') }}" media="(min-width: 768px)">
+  {% block extra_css %}{% endblock %}
+
+  <!-- Optimized font loading with font-display: swap to prevent FOIT -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Async Font Awesome loading to prevent render blocking -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print"
+    onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  </noscript>
 </head>
 
 <body>

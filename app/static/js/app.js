@@ -303,14 +303,12 @@ const renderTasks = (taskList = tasks) => {
 
     // Helper function to render task HTML
     const renderTaskCard = (task) => {
-        // Determine checkbox state and class
-        let checkboxChecked = '';
+        // Determine checkbox class based on status
         let checkboxClass = '';
 
         if (task.status === 'in_progress') {
             checkboxClass = 'in-progress';
         } else if (task.status === 'done') {
-            checkboxChecked = 'checked';
             checkboxClass = 'done';
         }
 
@@ -320,7 +318,7 @@ const renderTasks = (taskList = tasks) => {
              data-task-id="${task.id}" 
              onclick="handleTaskCardClick(event, ${task.id})">
             <div class="task-checkbox-wrapper">
-                <input type="checkbox" class="task-checkbox ${checkboxClass}" ${checkboxChecked}
+                <input type="checkbox" class="task-checkbox ${checkboxClass}"
                        onchange="toggleTaskStatus(${task.id})"
                        title="Change status">
             </div>
@@ -546,7 +544,6 @@ const saveTask = async () => {
         tags: document.getElementById('task-tags').value
     };
 
-    console.log(taskData.due_date);
     try {
         if (editingTaskId) {
             await apiRequest(`/api/tasks/${editingTaskId}`, {

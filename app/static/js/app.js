@@ -738,9 +738,14 @@ document.addEventListener('DOMContentLoaded', () => {
         initRegisterPage();
     } else if (document.getElementById('dashboard-section')) {
         initDashboard();
-    }
 
-    document.getElementById('filter-select').addEventListener('change', applyFilters);
-    document.getElementById('sort-select').addEventListener('change', applyFilters);
-    document.getElementById('search-input').addEventListener('input', applyFilters);
+        // Dashboard-only event listeners
+        const filterSelect = document.getElementById('filter-select');
+        const sortSelect = document.getElementById('sort-select');
+        const searchInput = document.getElementById('search-input');
+
+        if (filterSelect) filterSelect.addEventListener('change', applyFilters);
+        if (sortSelect) sortSelect.addEventListener('change', applyFilters);
+        if (searchInput) searchInput.addEventListener('input', applyFilters);
+    }
 });

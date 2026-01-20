@@ -72,7 +72,24 @@ body {
     opacity: 0.4;
 }
 
-/* Layout */
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Background Animation - Static on Mobile, Animated on Desktop */
 .container {
     max-width: 600px;
     margin: 0 auto;

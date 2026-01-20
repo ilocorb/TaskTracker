@@ -117,12 +117,14 @@
         </div>
 
         <div class="filter-sort-row">
-            <select id="filter-select" class="glass-select">
+            <label for="filter-select" class="sr-only">Filter tasks</label>
+            <select id="filter-select" class="glass-select" aria-label="Filter tasks">
                 <option value="all">All Tasks</option>
                 <option value="high_priority">High Priority</option>
                 <option value="overdue">Overdue</option>
             </select>
-            <select id="sort-select" class="glass-select">
+            <label for="sort-select" class="sr-only">Sort tasks</label>
+            <select id="sort-select" class="glass-select" aria-label="Sort tasks">
                 <option value="created_at">Newest</option>
                 <option value="due_date">Due Date</option>
                 <option value="priority">Priority</option>
@@ -224,7 +226,7 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Priority</label>
+                    <label for="task-priority">Priority</label>
                     <select id="task-priority" class="glass-select">
                         <option value="low">Low</option>
                         <option value="medium" selected>Medium</option>

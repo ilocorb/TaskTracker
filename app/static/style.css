@@ -1,14 +1,51 @@
 :root {
+    --background-color: #0f0c29;
     --primary-color: #6a11cb;
     --secondary-color: #2575fc;
+
+    /* To have other colors for lightmode buttons */
+    --btn-primary-color: #6a11cb;
+    --btn-secondary-color: #2575fc;
+
     --fab-color: #e98411;
+    --lightbtn-color: #6a11cb;
     --accent-color: #ff4b1f;
-    --text-color: #ffffff;
+    --text-color: #c2c2c2;
     --text-muted: rgba(255, 255, 255, 0.7);
     --glass-bg: rgba(255, 255, 255, 0.1);
     --glass-border: rgba(255, 255, 255, 0.2);
     --font-main: 'Outfit', sans-serif;
+    --blob-opacity: 0.6;
+    --blob-blur: 80px;
+    --progress-cirlceStroke: rgba(15, 12, 41, 0.12);
+    --glass-header-bg: rgba(255, 255, 255, 0.05);
+    --glass-task-card: rgba(28, 27, 27, 0.3);
+    --select-bg-color: rgba(29, 29, 29, 0.151);
 }
+
+/* Secondary color scheme for light mode */
+[data-theme='light'] {
+    --background-color: #f5f6ff;
+    --primary-color: #6a11cb;
+    --secondary-color: #2575fc;
+    --btn-primary-color: #8746cdad;
+    --btn-secondary-color: #689efca8;
+    --fab-color: #e98411;
+    --lightbtn-color: #6a11cb;
+    --accent-color: #ff4b1f;
+    --text-color: #1c1b2f;
+    --text-muted: rgb(47, 47, 49);
+    --glass-bg: rgba(15, 12, 41, 0.112);
+    --glass-border: rgba(15, 12, 41, 0.12);
+    --font-main: 'Outfit', sans-serif;
+    --blob-opacity: 0.3;
+    --blob-blur: 80px;
+    --progress-cirlceStroke: rgba(15, 12, 41, 0.316);
+    --glass-header-bg: rgba(15, 12, 41, 0.112);
+    --glass-task-card: rgba(255, 255, 255, 0.286);
+    --select-bg-color: rgba(40, 40, 40, 0.135);
+}
+
 
 * {
     margin: 0;
@@ -19,7 +56,7 @@
 
 body {
     font-family: var(--font-main);
-    background-color: #0f0c29;
+    background-color: var(--background-color);
     color: var(--text-color);
     min-height: 100vh;
     overflow-x: hidden;
@@ -40,8 +77,8 @@ body {
 .blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.6;
+    filter: blur(var(--blob-blur));
+    opacity: var(--blob-opacity);
     will-change: transform;
     transform: translateZ(0);
     /* No animation by default - mobile has static blobs */
@@ -118,7 +155,7 @@ body {
 }
 
 .glass-header {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--glass-header-bg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 16px;
@@ -145,11 +182,11 @@ input,
 textarea,
 select {
     width: 100%;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--select-bg-color);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 12px 15px 12px 40px;
-    color: white;
+    color: var(--text-color);
     font-family: inherit;
     font-size: 1rem;
     outline: none;
@@ -160,7 +197,7 @@ select {
 .glass-select {
     padding-left: 15px;
     /* Reset padding if no icon */
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--select-bg-color);
 }
 
 input:focus,
@@ -174,7 +211,7 @@ select:focus {
 .btn-primary {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    background: linear-gradient(135deg, var(--btn-secondary-color), var(--btn-primary-color));
     border: none;
     border-radius: 12px;
     color: white;
@@ -454,7 +491,7 @@ select:focus {
 
 .progress-circle-bg {
     fill: none;
-    stroke: rgba(255, 255, 255, 0.1);
+    stroke: var(--progress-cirlceStroke);
     stroke-width: 6;
     cx: 50;
     cy: 50;
@@ -653,7 +690,7 @@ select:focus {
     font-size: 0.75rem;
     font-weight: 700;
     color: var(--text-color);
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--glass-header-bg);
     padding: 2px 8px;
     border-radius: 10px;
     min-width: 24px;
@@ -661,7 +698,7 @@ select:focus {
 }
 
 .status-tab.active {
-    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    background: linear-gradient(135deg, var(--btn-secondary-color), var(--btn-primary-color));
     border-color: var(--primary-color);
     color: var(--text-color);
     transform: scale(1.05);
@@ -759,7 +796,7 @@ select:focus {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--glass-task-card);
     backdrop-filter: blur(5px);
     display: flex;
     align-items: center;
@@ -941,7 +978,7 @@ select:focus {
 .column-header .task-count {
     margin-left: auto;
     font-size: 0.7rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--glass-header-bg);
     padding: 2px 6px;
     border-radius: 10px;
     opacity: 0.8;
@@ -1010,7 +1047,7 @@ select:focus {
     min-height: 24px;
     border: 2px solid var(--glass-border);
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--glass-header-bg);
     cursor: pointer;
     position: relative;
     transition: all 0.3s ease;
@@ -1124,7 +1161,7 @@ select:focus {
 }
 
 .task-card.overdue {
-    border-left: 4px solid #ff4d4d;
+    border-left-color: 4px solid #ff4d4d;
 }
 
 .task-overdue-badge {
@@ -1229,5 +1266,42 @@ select:focus {
 }
 
 .fab i {
+    transition: transform 0.3s ease;
+}
+
+/* Lightmode Button with container */
+.lightMode-container{
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+}
+
+.lightbtn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--lightbtn-color);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+    transition: all 0.3s ease;
+    z-index: 999; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbtn:hover {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 -8px 30px rgba(128, 0, 255, 0.6);
+}
+
+.lightbtn:active {
+    transform: scale(0.95) rotate(90deg);
+}
+
+.lightbtn i {
     transition: transform 0.3s ease;
 }

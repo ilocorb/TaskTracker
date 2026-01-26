@@ -154,14 +154,14 @@ const updateQuickStats = () => {
     const dueToday = tasks.filter(task => {
         if (!task.due_date || task.status === 'done') return false;
         const taskDate = new Date(task.due_date);
-        return taskDate.getDate() === now.getDate();
+        return taskDate.getDate() === now.getDate() && taskDate.getMonth() === now.getMonth();
     }).length;
 
     // Overdue tasks
     const overdue = tasks.filter(task => {
         if (!task.due_date || task.status === 'done') return false;
         const taskDate = new Date(task.due_date);
-        return taskDate.getDate() < now.getDate();
+        return taskDate < now.setHours(0, 0, 0, 0);
     }).length;
 
     // Tasks completed this week
@@ -263,7 +263,9 @@ const loadTasks = async () => {
     try {
         const data = await apiRequest('/api/tasks');
         tasks = data.tasks;
-        renderTasks(tasks);
+        
+        renderTasks(tasks)
+        applyFilters();
     } catch (error) {
         console.error('Failed to load tasks:', error);
         showAlert('Failed to load tasks', 'error');
@@ -285,6 +287,7 @@ const renderTasks = (taskList = tasks) => {
     // Update task counts (both column headers and mobile tabs) with FULL counts
     document.getElementById('todo-count').textContent = todoCountTotal;
     document.getElementById('in-progress-count').textContent = inProgressCountTotal;
+    document.getElementById('in-progress-count-column').textContent = inProgressCountTotal;
     document.getElementById('done-count').textContent = doneCountTotal;
 
     // Update mobile tab counts with FULL counts
@@ -405,7 +408,14 @@ const applyFilters = () => {
 
             case 'overdue':
                 if (!task.due_date) return false;
-                return new Date(task.due_date) < new Date() && task.status !== 'done';
+                return new Date(task.due_date) < new Date().setHours(0, 0, 0, 0) && task.status !== 'done';
+
+            case 'due_today':
+                dueDate = new Date(task.due_date);
+                if (!task.due_date) return false;
+                return dueDate.getDate() === new Date().getDate() && 
+                    dueDate.getMonth() === new Date().getMonth() && 
+                    task.status !== 'done';
 
             default:
                 return true;
@@ -447,7 +457,7 @@ const isOverdue = (task) => {
     if (!task.due_date) return false;
     if (task.status === 'done') return false;
 
-    return new Date(task.due_date).getDate() < new Date().getDate();
+    return new Date(task.due_date) < new Date().setHours(0, 0, 0, 0);
 };
 
 const updateProgressBar = (taskList = tasks) => {
@@ -629,6 +639,12 @@ const handleTaskCardClick = (event, taskId) => {
     editTask(taskId);
 };
 
+
+const toggleLightMode = () => {
+    document.body.dataset.theme = document.body.dataset.theme === 'light' ? '' : 'light';
+}
+
+
 // Initialize mobile filter tabs
 const initMobileFilterTabs = () => {
     const tabs = document.querySelectorAll('.status-tab');
@@ -687,6 +703,12 @@ const initDashboard = async () => {
         addTaskBtn.addEventListener('click', () => showTaskModal());
     }
 
+    // Setup LightMode button
+    const lightModeButton = document.querySelector('.lightbtn')
+    if (lightModeButton) {
+        lightModeButton.addEventListener('click', () => toggleLightMode());
+    }
+    
     // Setup close modal button
     const closeModalBtn = document.getElementById('close-modal');
     if (closeModalBtn) {
@@ -729,6 +751,7 @@ const initDashboard = async () => {
     }
 };
 
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     // Check which page we're on and initialize accordingly
@@ -747,5 +770,5 @@ document.addEventListener('DOMContentLoaded', () => {
         if (filterSelect) filterSelect.addEventListener('change', applyFilters);
         if (sortSelect) sortSelect.addEventListener('change', applyFilters);
         if (searchInput) searchInput.addEventListener('input', applyFilters);
-    }
+    } 
 });

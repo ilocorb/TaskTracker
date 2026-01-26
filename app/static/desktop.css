@@ -321,4 +321,10 @@
     .form-row {
         flex-direction: column;
     }
+
+    .icon-btn:hover {
+        transform: scale(1.2);
+        color: var(--secondary-color);
+        transition: all 0.2s ease;
+    }
 }

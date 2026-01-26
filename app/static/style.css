@@ -10,7 +10,7 @@
     --fab-color: #e98411;
     --lightbtn-color: #6a11cb;
     --accent-color: #ff4b1f;
-    --text-color: #c2c2c2;
+    --text-color: #e8e8e8;
     --text-muted: rgba(255, 255, 255, 0.7);
     --glass-bg: rgba(255, 255, 255, 0.1);
     --glass-border: rgba(255, 255, 255, 0.2);
@@ -21,29 +21,31 @@
     --glass-header-bg: rgba(255, 255, 255, 0.05);
     --glass-task-card: rgba(28, 27, 27, 0.3);
     --select-bg-color: rgba(29, 29, 29, 0.151);
+    --modal-bg-color: rgba(0, 0, 0, 0.7);
 }
 
 /* Secondary color scheme for light mode */
 [data-theme='light'] {
-    --background-color: #f5f6ff;
-    --primary-color: #6a11cb;
+    --background-color: #f5f7fa;
+    --primary-color: #5a0eb8;
     --secondary-color: #2575fc;
-    --btn-primary-color: #8746cdad;
-    --btn-secondary-color: #689efca8;
+    --btn-primary-color: #6a11cb;
+    --btn-secondary-color: #2575fc;
     --fab-color: #e98411;
     --lightbtn-color: #6a11cb;
     --accent-color: #ff4b1f;
-    --text-color: #1c1b2f;
-    --text-muted: rgb(47, 47, 49);
-    --glass-bg: rgba(15, 12, 41, 0.112);
-    --glass-border: rgba(15, 12, 41, 0.12);
+    --text-color: #1a1a2e;
+    --text-muted: #5a5a72;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(0, 0, 0, 0.1);
     --font-main: 'Outfit', sans-serif;
-    --blob-opacity: 0.3;
-    --blob-blur: 80px;
-    --progress-cirlceStroke: rgba(15, 12, 41, 0.316);
-    --glass-header-bg: rgba(15, 12, 41, 0.112);
-    --glass-task-card: rgba(255, 255, 255, 0.286);
-    --select-bg-color: rgba(40, 40, 40, 0.135);
+    --blob-opacity: 0.25;
+    --blob-blur: 100px;
+    --progress-cirlceStroke: rgba(0, 0, 0, 0.1);
+    --glass-header-bg: rgba(255, 255, 255, 0.8);
+    --glass-task-card: rgba(255, 255, 255, 0.5);
+    --select-bg-color: rgba(255, 255, 255, 0.8);
+    --modal-bg-color: rgba(255, 255, 255, 0.8);
 }
 
 
@@ -229,7 +231,7 @@ select:focus {
 .icon-btn {
     background: transparent;
     border: none;
-    color: white;
+    color: var(--text-color);
     font-size: 1.2rem;
     cursor: pointer;
     padding: 8px;
@@ -796,7 +798,7 @@ select:focus {
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--glass-task-card);
+    background: var(--modal-bg-color);
     backdrop-filter: blur(5px);
     display: flex;
     align-items: center;
@@ -1269,39 +1271,15 @@ select:focus {
     transition: transform 0.3s ease;
 }
 
-/* Lightmode Button with container */
-.lightMode-container{
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
+/* Smooth theme transition */
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.lightbtn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--lightbtn-color);
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
-    transition: all 0.3s ease;
-    z-index: 999; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.lightbtn:hover {
-    transform: scale(1.1) rotate(90deg);
-    box-shadow: 0 -8px 30px rgba(128, 0, 255, 0.6);
-}
-
-.lightbtn:active {
-    transform: scale(0.95) rotate(90deg);
-}
-
-.lightbtn i {
-    transition: transform 0.3s ease;
+.glass-panel,
+.glass-header,
+.task-card,
+.glass-input,
+.glass-select {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }

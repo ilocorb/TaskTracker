@@ -137,7 +137,7 @@ const updateDashboardContext = () => {
 const updateQuickStats = () => {
     // Get today's date in UTC (midnight)
     const now = new Date();
-    const utcToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const utcToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds()));
     // All Tasks
     const allTasks = tasks.length;
 
@@ -263,7 +263,7 @@ const loadTasks = async () => {
     try {
         const data = await apiRequest('/api/tasks');
         tasks = data.tasks;
-        
+
         renderTasks(tasks)
         applyFilters();
     } catch (error) {
@@ -413,8 +413,8 @@ const applyFilters = () => {
             case 'due_today':
                 dueDate = new Date(task.due_date);
                 if (!task.due_date) return false;
-                return dueDate.getDate() === new Date().getDate() && 
-                    dueDate.getMonth() === new Date().getMonth() && 
+                return dueDate.getDate() === new Date().getDate() &&
+                    dueDate.getMonth() === new Date().getMonth() &&
                     task.status !== 'done';
 
             default:
@@ -704,11 +704,11 @@ const initDashboard = async () => {
     }
 
     // Setup LightMode button
-    const lightModeButton = document.querySelector('.lightbtn')
+    const lightModeButton = document.getElementById('lightMode-toggle')
     if (lightModeButton) {
         lightModeButton.addEventListener('click', () => toggleLightMode());
     }
-    
+
     // Setup close modal button
     const closeModalBtn = document.getElementById('close-modal');
     if (closeModalBtn) {
@@ -770,5 +770,5 @@ document.addEventListener('DOMContentLoaded', () => {
         if (filterSelect) filterSelect.addEventListener('change', applyFilters);
         if (sortSelect) sortSelect.addEventListener('change', applyFilters);
         if (searchInput) searchInput.addEventListener('input', applyFilters);
-    } 
+    }
 });

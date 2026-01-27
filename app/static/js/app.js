@@ -165,16 +165,16 @@ const updateQuickStats = () => {
         return taskDate < today;
     }).length;
 
-    // Start of week
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-
     // Tasks completed today
     const completedToday = tasks.filter(task => {
         if (task.status !== 'done' || !task.updated_at) return false;
         const updatedDate = new Date(task.updated_at);
         return updatedDate.toDateString() === now.toDateString();
     }).length;
+
+    // Today's workload: all tasks worked on today (todo + in_progress + completed today)
+    const todaysWorkload = openTasks + completedToday;
+
 
     // Update numbers in the UI
     const todoEl = document.getElementById('open-count');
@@ -190,7 +190,7 @@ const updateQuickStats = () => {
     // Bottom stats show as ratio (e.g., "3 / 10")
     if (dueTodayEl) dueTodayEl.textContent = `${dueToday} / ${openTasks}`;
     if (overdueEl) overdueEl.textContent = `${overdue} / ${openTasks}`;
-    if (completedTodayEl) completedTodayEl.textContent = `${completedToday} / ${allTasks}`;
+    if (completedTodayEl) completedTodayEl.textContent = `${completedToday} / ${todaysWorkload}`;
 
     // Scale progress bars based on total open tasks
     const totalForScaling = openTasks || 1;
@@ -209,7 +209,8 @@ const updateQuickStats = () => {
     }
 
     if (completedTodayBar) {
-        completedTodayBar.style.width = `${(completedToday / allTasks) * 100}%`;
+        const workloadForScaling = todaysWorkload || 1;
+        completedTodayBar.style.width = `${(completedToday / workloadForScaling) * 100}%`;
     }
 };
 

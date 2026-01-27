@@ -135,9 +135,10 @@ const updateDashboardContext = () => {
 };
 
 const updateQuickStats = () => {
-    // Get today's date in UTC (midnight)
+    // Current date in local timezone
     const now = new Date();
-    const utcToday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds()));
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
     // All Tasks
     const allTasks = tasks.length;
 
@@ -154,51 +155,37 @@ const updateQuickStats = () => {
     const dueToday = tasks.filter(task => {
         if (!task.due_date || task.status === 'done') return false;
         const taskDate = new Date(task.due_date);
-        return taskDate.getDate() === now.getDate() && taskDate.getMonth() === now.getMonth();
+        return taskDate.toDateString() === now.toDateString();
     }).length;
 
     // Overdue tasks
     const overdue = tasks.filter(task => {
         if (!task.due_date || task.status === 'done') return false;
         const taskDate = new Date(task.due_date);
-        return taskDate < now.setHours(0, 0, 0, 0);
+        return taskDate < today;
     }).length;
 
-    // Tasks completed this week
-    const startOfWeek = new Date(utcToday);
-    startOfWeek.setUTCDate(utcToday.getUTCDate() - utcToday.getUTCDay());
-    const completedThisWeek = tasks.filter(task => {
-        if (task.status !== 'done' || !task.updated_at) return false;
-        const updatedDate = new Date(task.updated_at);
-        return updatedDate >= startOfWeek;
-    }).length;
+    // Start of week
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
 
-    // Tasks completed today (UTC)
+    // Tasks completed today
     const completedToday = tasks.filter(task => {
         if (task.status !== 'done' || !task.updated_at) return false;
         const updatedDate = new Date(task.updated_at);
-        const utcUpdatedDate = new Date(Date.UTC(
-            updatedDate.getUTCFullYear(),
-            updatedDate.getUTCMonth(),
-            updatedDate.getUTCDate(),
-            updatedDate.getUTCHours(),
-            updatedDate.getUTCMinutes(),
-            updatedDate.getUTCSeconds()
-        ));
-        return utcUpdatedDate.getDate() === utcToday.getDate();
+        return updatedDate.toDateString() === now.toDateString();
     }).length;
 
     // Update numbers in the UI
     const todoEl = document.getElementById('open-count');
     const dueTodayEl = document.getElementById('due-today-count');
     const overdueEl = document.getElementById('overdue-count');
-    const weekCompletedEl = document.getElementById('week-completed-count');
     const inProgressEl = document.getElementById('in-progress-count');
     const completedTodayEl = document.getElementById('completed-today-count');
 
     if (todoEl) todoEl.textContent = todoTasks;
     if (inProgressEl) inProgressEl.textContent = inProgress;
-    if (weekCompletedEl) weekCompletedEl.textContent = completedThisWeek;
+    if (completedTodayEl) completedTodayEl.textContent = completedToday;
 
     // Bottom stats show as ratio (e.g., "3 / 10")
     if (dueTodayEl) dueTodayEl.textContent = `${dueToday} / ${openTasks}`;

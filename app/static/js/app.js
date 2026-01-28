@@ -420,15 +420,7 @@ const applyFilters = () => {
 
             case 'priority':
                 const priorityOrder = { high: 1, medium: 2, low: 3 };
-                aPriority = priorityOrder[a.priority];
-                bPriority = priorityOrder[b.priority];
-
-                /* sort overdue tasks first */
-                if (aPriority === bPriority) {
-                    return isOverdue(a) ? -1 : 1;
-                } else {
-                    return aPriority - bPriority;
-                }
+                return priorityOrder[a.priority] - priorityOrder[b.priority];
 
             case 'created_at':
                 return new Date(b.created_at) - new Date(a.created_at);

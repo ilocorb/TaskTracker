@@ -1,6 +1,4 @@
-// TaskTracker App - JavaScript Frontend
-
-// Utility Functions
+// Utils
 const showAlert = (message, type = 'error') => {
     const container = document.getElementById('alert-container');
     if (!container) return;

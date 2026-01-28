@@ -57,19 +57,10 @@ def create_task():
              flash('To create a Task a Title is required.', 'error')
 
         if request.is_json:
-                return {'success': True, 'message': 'Task created succesfully!'}
+                return {'success': True, 'message': 'Task created successfully!'}
         return redirect(url_for('index'))
-    
-    #if request.method == 'GET':
-
 
     return render_template('index.html')
-
-
-@bp.route('/tasks/<int:task_id>', methods=['GET'])
-@login_required
-def get_task(task_id):
-    """Get a specific task"""
 
 
 @bp.route('/tasks/<int:id>', methods=['DELETE'])

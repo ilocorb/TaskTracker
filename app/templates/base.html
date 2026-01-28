@@ -2,13 +2,20 @@
 <html lang="en">
 
 <head>
-  <title>{% block title %}{% endblock %} - TaskManager</title>
+  <title>{% block title %}{% endblock %} todoli </title>
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/favicon.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+
   <!-- for PWA -->
   <link rel="manifest" href="{{ url_for('static', filename='json/manifest.json') }}">
+
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#6a11cb">
 
   <!-- Resource hints for faster external resource loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com">

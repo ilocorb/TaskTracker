@@ -624,8 +624,22 @@ const handleTaskCardClick = (event, taskId) => {
 
 
 const toggleLightMode = () => {
-    document.body.dataset.theme = document.body.dataset.theme === '' ? 'light' : '';
-    localStorage.setItem('theme', document.body.dataset.theme);
+    // Toggle theme
+    const newTheme = document.body.dataset.theme === 'light' ? '' : 'light';
+    document.body.dataset.theme = newTheme;
+    localStorage.setItem('theme', newTheme);
+
+    // Update icon (moon for dark, sun for light)
+    const icon = document.querySelector('#lightMode-toggle i');
+    if (icon) {
+        icon.className = newTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // Update theme-color meta tag for mobile browser UI
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta) {
+        themeColorMeta.content = newTheme === 'light' ? '#f5f7fa' : '#6a11cb';
+    }
 }
 
 
@@ -669,6 +683,24 @@ window.toggleTaskStatus = toggleTaskStatus;
 window.handleTaskCardClick = handleTaskCardClick;
 
 const initDashboard = async () => {
+    // Restore saved theme from localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.body.dataset.theme = savedTheme;
+
+        // Update icon to match saved theme
+        const icon = document.querySelector('#lightMode-toggle i');
+        if (icon) {
+            icon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Update theme-color meta tag
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeColorMeta) {
+            themeColorMeta.content = savedTheme === 'light' ? '#f5f7fa' : '#6a11cb';
+        }
+    }
+
     // Load user info
     await loadCurrentUser();
 

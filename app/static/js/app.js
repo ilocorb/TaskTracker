@@ -632,7 +632,7 @@ const handleTaskCardClick = (event, taskId) => {
 
 
 const toggleLightMode = () => {
-    document.body.dataset.theme = document.body.dataset.theme === 'light' ? '' : 'light';
+    document.body.dataset.theme = document.body.dataset.theme === '' ? 'light' : '';
     localStorage.setItem('theme', document.body.dataset.theme);
 }
 

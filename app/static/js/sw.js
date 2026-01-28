@@ -2,17 +2,12 @@ self.addEventListener("install", (event) => {
     event.waitUntil(
         caches.open('tasktracker-cache').then(cache => {
             return cache.addAll([
-                '/',
-                '/index.html',
-                '/base.html',
-                '/login.html',
-                '/register.html',
-                '/users.html',
-                '/static/js/admin.js',
-                '/static/js/app.js',
-                '/static/admin.css',
-                '/static/desktop.css',
                 '/static/style.css',
+                '/static/desktop.css',
+                '/static/admin.css',
+                '/static/js/app.js',
+                '/static/js/admin.js',
+                '/static/json/manifest.json',
                 '/static/icons/icon-192.png',
                 '/static/icons/icon-512.png',
                 '/static/icons/favicon.png'

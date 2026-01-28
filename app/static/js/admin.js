@@ -6,6 +6,7 @@ class AdminPanel {
     }
 
     async init() {
+        this.getTheme();
         await this.loadUsers();
     }
 
@@ -22,6 +23,8 @@ class AdminPanel {
             this.showError('Failed to load users');
         }
     }
+
+   
 
     renderUsers(users) {
         const container = document.getElementById('users-container');
@@ -116,6 +119,10 @@ class AdminPanel {
             row.style.transform = 'translateX(-20px)';
             setTimeout(() => row.remove(), 300);
         }
+    }
+
+    getTheme() {
+        document.body.dataset.theme = localStorage.getItem('theme');
     }
 
     showFlashMessage(message, category) {

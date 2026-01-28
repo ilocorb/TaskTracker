@@ -132,6 +132,9 @@ const updateDashboardContext = () => {
     if (weekElement) {
         weekElement.textContent = `Week ${weekNumber}`;
     }
+
+    //theme
+    document.body.dataset.theme = localStorage.getItem('theme');
 };
 
 const updateQuickStats = () => {
@@ -630,6 +633,7 @@ const handleTaskCardClick = (event, taskId) => {
 
 const toggleLightMode = () => {
     document.body.dataset.theme = document.body.dataset.theme === 'light' ? '' : 'light';
+    localStorage.setItem('theme', document.body.dataset.theme);
 }
 
 

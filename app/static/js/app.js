@@ -756,3 +756,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (searchInput) searchInput.addEventListener('input', applyFilters);
     }
 });
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register("/static/js/sw.js")
+        .then(() => console.log("Service worker registered."))
+        .catch(error => console.log("Serviceworker error", error));
+}

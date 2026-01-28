@@ -1,0 +1,14 @@
+{
+    "name": "Tasktracker",
+    "short_name": "Tasktracker",
+    "start_url": "/auth/login",
+    "display": "standalone",
+    "id": "/auth/login",
+    "icons":[
+        {
+            "src": "/static/icons/icon_T.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        }
+    ]
+}
